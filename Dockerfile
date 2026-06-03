@@ -13,12 +13,10 @@ RUN pip3 install --upgrade pip setuptools wheel
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
 
-COPY index/* ./index/
+COPY index ./index
 COPY app.py app.py
-COPY chatbot/chatbot.py ./chatbot/chatbot.py
-COPY rag/llm_client.py ./llm_client.py
-
-RUN pip3 install -r requirements.txt
+COPY chatbot ./chatbot
+COPY rag ./rag
 
 EXPOSE 8501
 

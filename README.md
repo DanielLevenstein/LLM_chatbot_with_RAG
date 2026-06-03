@@ -31,15 +31,21 @@ have been run and the chunks and indexes created have been committed to source c
 
 To run the streamlit app run, install the dependencies and run the following command locally. 
 
-```
+```bash
 pip install -r requirements.txt
-streamlit run app.py```
+streamlit run app.py
 ```
 Or run through docker.
-```
+```bash
 docker build --tag aws-rag .
-docker run aws-rag 
+docker run -d -p 8501:8501 aws-rag
 ```
+
+Then open `http://localhost:8501` on the host machine.
+
+Note: inside a Docker container, `localhost` means that same container. If another container needs to reach this app,
+put both containers on the same Docker network and use the app container name, or use `host.docker.internal:8501` to
+reach a service running on the host.
 
 ## Example Queries
 
@@ -121,4 +127,3 @@ This process will:
 
 - `index/index.faiss` – FAISS vector index
 - `index/chunks.pkl` – Pickled text chunks
-
