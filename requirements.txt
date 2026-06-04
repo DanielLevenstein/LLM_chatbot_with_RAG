@@ -4,6 +4,6 @@ sentence-transformers~=5.2.0
 huggingface-hub~=0.36.0
 streamlit~=1.56.0
 huggingface_hub~=0.36.2
-llama-cpp-python==0.2.90
-requests~=2.32.5
+llama-cpp-python==0.3.25
+requests~=2.33.0
 beautifulsoup4~=4.14.3

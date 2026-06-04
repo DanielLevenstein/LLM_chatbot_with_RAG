@@ -18,7 +18,7 @@ INDEX_PATH = "index/index.faiss"
 CHUNKS_PATH = "index/chunks.pkl"
 
 TOP_K = 4
-# Model Options.
+# Model Options for MODEL_PATH = "unsloth/Qwen3-4B-GGUF"
 # Qwen3-4B-BF16.gguf, 8.05 GB
 # Qwen3-4B-Q8_0.gguf, 4.28 GB, 53 s
 # Qwen3-4B-Q6_K.gguf, 3.31 GB
@@ -59,6 +59,10 @@ def create_llm(model_name_or_path, model_basename):
         repo_id=model_name_or_path,
         filename=model_basename
     )
+    print(f"Model path: {model_path}")
+    print(os.path.exists(model_path))
+    print(os.path.getsize(model_path))
+
     llm = Llama(
         model_path=model_path,
         n_threads=2,  # CPU cores
@@ -68,7 +72,7 @@ def create_llm(model_name_or_path, model_basename):
     )
     end_time = datetime.now()
     elapsed_time = end_time - start_time
-    print(f"{MODEL_FILENAME} creating time: {elapsed_time}")
+    print(f"Model download to {model_path}\n Download time: {elapsed_time}")
     return llm
 
 

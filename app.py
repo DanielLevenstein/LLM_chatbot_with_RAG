@@ -2,6 +2,7 @@ import streamlit as st
 from huggingface_hub import hf_hub_download
 from chatbot.chatbot import ChatBot
 
+
 st.title("Streamlit Chatbot")
 st.write("Welcome to the RAG-based chatbot! You can ask questions based on the context of provided documents.")
 
