@@ -3,11 +3,13 @@ import pickle
 import faiss
 import numpy as np
 import os
+import time
 from sentence_transformers import SentenceTransformer
 import torch
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
+from huggingface_hub.utils import HfHubHTTPError
 
 
 CHUNK_SIZE = 1024
@@ -28,27 +30,47 @@ TOP_K = 4
 MODEL_PATH = "unsloth/Qwen3-4B-GGUF"
 MODEL_FILENAME = "Qwen3-4B-Q5_K_M.gguf"
 _client = None
+_index = None
+_chunks = None
+_embed_model = None
 
 
 def get_llm_client():
     global _client
     if _client is None:
         _client = create_llm(MODEL_PATH, MODEL_FILENAME)
-        load_rag_assets()
     return _client
 
 
+def download_model(model_name_or_path, model_basename, max_retries=3, initial_backoff=5):
+    for attempt in range(1, max_retries + 1):
+        try:
+            return hf_hub_download(repo_id=model_name_or_path, filename=model_basename)
+        except HfHubHTTPError as e:
+            status = getattr(e, "status_code", None)
+            if attempt == max_retries or status != 502:
+                raise
+            print(f"Hugging Face download failed with status {status}. Retrying {attempt}/{max_retries}...")
+        except Exception as e:
+            if attempt == max_retries:
+                raise
+            print(f"Model download failed: {e}. Retrying {attempt}/{max_retries}...")
+        time.sleep(initial_backoff * attempt)
+
+
 def load_rag_assets():
-    print("CWD:", os.getcwd())
-    index = faiss.read_index(INDEX_PATH)
+    global _index, _chunks, _embed_model
+    if _index is None or _chunks is None or _embed_model is None:
+        print("CWD:", os.getcwd())
+        _index = faiss.read_index(INDEX_PATH)
 
-    with open(CHUNKS_PATH, "rb") as f:
-        chunks = pickle.load(f)
+        with open(CHUNKS_PATH, "rb") as f:
+            _chunks = pickle.load(f)
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        _embed_model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
 
-    return index, chunks, model
+    return _index, _chunks, _embed_model
 
 
 def create_llm(model_name_or_path, model_basename):
@@ -57,9 +79,9 @@ def create_llm(model_name_or_path, model_basename):
     # Using hf_hub_download to download a model from the Hugging Face model hub
     # The repo_id parameter specifies the model name or path in the Hugging Face repository
     # The filename parameter specifies the name of the file to download
-    model_path = hf_hub_download(
-        repo_id=model_name_or_path,
-        filename=model_basename
+    model_path = download_model(
+        model_name_or_path,
+        model_basename,
     )
     print(f"Model path: {model_path}")
     print(os.path.exists(model_path))
@@ -129,11 +151,7 @@ def generate_response_with_context(llm, instruction: str, context: str, question
 
 
 def generate_response_using_rag(llm, instruction: str, question: str) -> str:
-    index = faiss.read_index(INDEX_PATH)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
-    with open(CHUNKS_PATH, "rb") as f:
-        chunks = pickle.load(f)
+    index, chunks, model = load_rag_assets()
     context = retrieve(question, index, chunks, model)
     response = llm.create_chat_completion(
         messages=[

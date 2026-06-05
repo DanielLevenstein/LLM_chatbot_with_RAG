@@ -14,19 +14,27 @@ You are a strict RAG assistant.
 
 class ChatBot:
     def __init__(self):
-        self.llm = llm_client.get_llm_client()
+        self.llm = None
+
+    def _get_llm(self):
+        if self.llm is None:
+            self.llm = llm_client.get_llm_client()
+        return self.llm
+
     def ask_question_without_context(self, message: str) -> str:
         print(message)
-        return llm_client.generate_response_without_context(self.llm, SYSTEM_PROMPT, message)
+        return llm_client.generate_response_without_context(self._get_llm(), SYSTEM_PROMPT, message)
 
     def ask_question_using_rag(self, message: str) -> str:
         print(message)
-        return llm_client.generate_response_using_rag(self.llm, SYSTEM_PROMPT, message)
+        return llm_client.generate_response_using_rag(self._get_llm(), SYSTEM_PROMPT, message)
     def ask_question_with_context(self, context: str, message: str) -> str:
         print(message)
-        return llm_client.generate_response_with_context(self.llm, SYSTEM_PROMPT3, context, message)
+        return llm_client.generate_response_with_context(self._get_llm(), SYSTEM_PROMPT3, context, message)
+
     def close_model(self):
-        self.llm.close()
+        if self.llm is not None:
+            self.llm.close()
 
 if __name__ == '__main__':
     chatbot = ChatBot()

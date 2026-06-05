@@ -1,6 +1,7 @@
 import unittest
+from unittest.mock import Mock, patch
 
-from chatbot.chatbot import ChatBot
+from chatbot.chatbot import ChatBot, SYSTEM_PROMPT
 from rag import llm_client
 
 UNKNOWN_INFO = "I don’t know based on the given information."
@@ -31,5 +32,22 @@ class ChatBotTest(unittest.TestCase):
     def test_lookup_using_rag(self):
         response = self.chatbot.ask_question_using_rag( "What blood pressure levels are considered elevated?")
         print(response)
+
+    def test_lazy_loads_model_on_first_use(self):
+        with patch('chatbot.chatbot.llm_client.get_llm_client') as mock_get_llm, \
+             patch('chatbot.chatbot.llm_client.generate_response_without_context') as mock_generate:
+            mock_llm = Mock()
+            mock_get_llm.return_value = mock_llm
+            mock_generate.return_value = 'mock-response'
+
+            bot = ChatBot()
+            self.assertIsNone(bot.llm)
+            response = bot.ask_question_without_context('hello')
+
+            self.assertEqual(response, 'mock-response')
+            self.assertIs(bot.llm, mock_llm)
+            mock_get_llm.assert_called_once()
+            mock_generate.assert_called_once_with(mock_llm, SYSTEM_PROMPT, 'hello')
+
 if __name__ == '__main__':
     unittest.main()
