@@ -1,7 +1,11 @@
+import subprocess
+import sys
 import unittest
-import torch
+from concurrent.futures import ThreadPoolExecutor
+from unittest.mock import Mock, patch
 
 from rag.llm_client import (
+    close_llm_client,
     trim_response,
     retrieve,
     chunk_text,
@@ -9,6 +13,7 @@ from rag.llm_client import (
     SENTENCE_TRANSFORMER,
     CHUNKS_PATH,
 )
+from rag import llm_client
 
 from sentence_transformers import SentenceTransformer
 
@@ -17,13 +22,48 @@ import faiss
 
 
 class LlmClientTest(unittest.TestCase):
+    def tearDown(self):
+        llm_client._client = None
+
     def test_trim_response(self):
         self.assertEqual("value", trim_response("<think></think>value"))
 
+    def test_close_llm_client_releases_singleton(self):
+        mock_llm = Mock()
+        llm_client._client = mock_llm
+
+        close_llm_client()
+
+        mock_llm.close.assert_called_once()
+        self.assertIsNone(llm_client._client)
+
+    def test_get_llm_client_only_creates_one_client_for_concurrent_callers(self):
+        mock_llm = Mock()
+
+        with patch("rag.llm_client.create_llm", return_value=mock_llm) as mock_create:
+            with ThreadPoolExecutor(max_workers=8) as executor:
+                clients = list(executor.map(lambda _: llm_client.get_llm_client(), range(8)))
+
+        self.assertEqual([mock_llm] * 8, clients)
+        mock_create.assert_called_once_with(llm_client.MODEL_PATH, llm_client.MODEL_FILENAME)
+
+    def test_import_does_not_eagerly_load_torch(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import sys; import rag.llm_client; print('torch' in sys.modules)",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual("False", result.stdout.strip())
+
     def test_retrieve_chunks(self):
         index = faiss.read_index(INDEX_PATH)
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
+        model = SentenceTransformer(SENTENCE_TRANSFORMER)
         with open(CHUNKS_PATH, "rb") as f:
             chunks = pickle.load(f)
 

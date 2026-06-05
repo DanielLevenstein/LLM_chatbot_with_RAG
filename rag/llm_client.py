@@ -1,16 +1,13 @@
 from datetime import datetime
+import atexit
+import gc
 import json
 import pickle
 import faiss
 import numpy as np
 import os
 import time
-from sentence_transformers import SentenceTransformer
-
-try:
-    import torch
-except ImportError:
-    torch = None
+from threading import RLock
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
@@ -56,13 +53,52 @@ _client = None
 _index = None
 _chunks = None
 _embed_model = None
+_client_lock = RLock()
+_assets_lock = RLock()
 
 
 def get_llm_client():
     global _client
     if _client is None:
-        _client = create_llm(MODEL_PATH, MODEL_FILENAME)
+        with _client_lock:
+            if _client is None:
+                _client = create_llm(MODEL_PATH, MODEL_FILENAME)
     return _client
+
+
+def _close_resource(resource):
+    close = getattr(resource, "close", None)
+    if callable(close):
+        close()
+
+
+def close_llm_client():
+    global _client
+    with _client_lock:
+        client = _client
+        _client = None
+
+    if client is not None:
+        _close_resource(client)
+        gc.collect()
+
+
+def close_rag_assets():
+    global _index, _chunks, _embed_model
+    with _assets_lock:
+        _index = None
+        _chunks = None
+        _embed_model = None
+
+    gc.collect()
+
+
+def close_all_resources():
+    close_llm_client()
+    close_rag_assets()
+
+
+atexit.register(close_all_resources)
 
 
 def download_model(model_name_or_path, model_basename, max_retries=3, initial_backoff=5):
@@ -84,14 +120,20 @@ def download_model(model_name_or_path, model_basename, max_retries=3, initial_ba
 def load_rag_assets():
     global _index, _chunks, _embed_model
     if _index is None or _chunks is None or _embed_model is None:
-        print("CWD:", os.getcwd())
-        _index = faiss.read_index(INDEX_PATH)
+        with _assets_lock:
+            if _index is None or _chunks is None or _embed_model is None:
+                print("CWD:", os.getcwd())
+                index = faiss.read_index(INDEX_PATH)
 
-        with open(CHUNKS_PATH, "rb") as f:
-            _chunks = pickle.load(f)
+                with open(CHUNKS_PATH, "rb") as f:
+                    chunks = pickle.load(f)
 
-        device = "cuda" if torch is not None and torch.cuda.is_available() else "cpu"
-        _embed_model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
+                from sentence_transformers import SentenceTransformer
+
+                embed_model = SentenceTransformer(SENTENCE_TRANSFORMER)
+                _index = index
+                _chunks = chunks
+                _embed_model = embed_model
 
     return _index, _chunks, _embed_model
 

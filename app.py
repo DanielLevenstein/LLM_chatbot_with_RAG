@@ -3,7 +3,8 @@ import sys
 
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 os.environ.setdefault("PYTHONPATH", ROOT_DIR)
-sys.path.insert(0, ROOT_DIR)
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 import streamlit as st
 from chatbot.chatbot import ChatBot
 

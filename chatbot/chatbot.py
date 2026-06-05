@@ -34,7 +34,8 @@ class ChatBot:
 
     def close_model(self):
         if self.llm is not None:
-            self.llm.close()
+            llm_client.close_llm_client()
+            self.llm = None
 
 if __name__ == '__main__':
     chatbot = ChatBot()

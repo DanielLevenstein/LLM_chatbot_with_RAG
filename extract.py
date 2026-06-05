@@ -3,7 +3,6 @@ import json
 import os
 import time
 import requests
-import json
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, urlunparse
 from collections import deque
@@ -59,61 +58,66 @@ def save(path, text, url):
 
 def crawl(start_url, feature_name, max_depth=2, max_pages=100, delay=0.5):
     visited = set()
-    queue = deque([(normalize_url(start_url), 0)])
+    start_url = normalize_url(start_url)
+    queued = {start_url}
+    queue = deque([(start_url, 0)])
     os.makedirs("data/", exist_ok=True)
     print(f"Crawling {start_url} for {feature_name}:")
     page_id = 0
     downloaded = 0
 
-    while queue and page_id < max_pages:
-        url, depth = queue.popleft()
+    with requests.Session() as session:
+        session.headers.update(HEADERS)
+        while queue and page_id < max_pages:
+            url, depth = queue.popleft()
 
-        if url in visited:
-            continue
-
-        if depth > max_depth:
-            continue
-        existing_files = glob.glob(f"data/{feature_name}*")
-        if feature_level_page_skip and existing_files:
-            print(f"Skipping {url} as files for {feature_name} already exist.")
-            continue
-        try:
-            resp = requests.get(url, headers=HEADERS, timeout=15)
-            if resp.status_code != 200:
-                print(f"ERROR: {resp.status_code}: {url}")
+            if url in visited:
                 continue
 
-            html = resp.text
-            url_parts = urlparse(url)
-            # print(f"Saving {url_parts}")
-            url_path = url_parts.path.replace("/", "_")
-            path = f"data/{feature_name}{url_path}.md"
-            skip_download = False
-            if os.path.exists(path):
-                print(f"Skipping {url} as file already exists.")
-                skip_download = True
-                # continue
-            else:
-                print(f"[depth={depth}] {url}")
-            text = extract_text(html)
-            visited.add(url)
+            if depth > max_depth:
+                continue
+            existing_files = glob.glob(f"data/{feature_name}*")
+            if feature_level_page_skip and existing_files:
+                print(f"Skipping {url} as files for {feature_name} already exist.")
+                continue
+            try:
+                with session.get(url, timeout=15) as resp:
+                    if resp.status_code != 200:
+                        print(f"ERROR: {resp.status_code}: {url}")
+                        continue
 
-            if len(text) > 300:
-                if not skip_download:
-                    print(f"Saving {url} to {path}")
-                    save(path, text, url)
-                    downloaded += 1
-                page_id += 1
+                    html = resp.text
+                url_parts = urlparse(url)
+                # print(f"Saving {url_parts}")
+                url_path = url_parts.path.replace("/", "_")
+                path = f"data/{feature_name}{url_path}.md"
+                skip_download = False
+                if os.path.exists(path):
+                    print(f"Skipping {url} as file already exists.")
+                    skip_download = True
+                    # continue
+                else:
+                    print(f"[depth={depth}] {url}")
+                text = extract_text(html)
+                visited.add(url)
 
-            if depth <= max_depth:
-                for link in extract_links(html, url):
-                    if link not in visited:
-                        queue.append((link, depth + 1))
+                if len(text) > 300:
+                    if not skip_download:
+                        print(f"Saving {url} to {path}")
+                        save(path, text, url)
+                        downloaded += 1
+                    page_id += 1
 
-            time.sleep(delay)
+                if depth <= max_depth:
+                    for link in extract_links(html, url):
+                        if link not in queued and link not in visited:
+                            queued.add(link)
+                            queue.append((link, depth + 1))
 
-        except Exception as e:
-           print(f"Error {url}: {e}")
+                time.sleep(delay)
+
+            except Exception as e:
+                print(f"Error {url}: {e}")
     print(f"Downloading {downloaded} of {page_id} pages for {feature_name}")
 
 def write_to_json(features, filepath):
@@ -150,4 +154,3 @@ def run():
     print("If this is your first time running this script please update 'config/features_current.json' with the features you want to crawl.")
 if __name__ == "__main__":
     run()
-
