@@ -14,23 +14,6 @@ def read_txt(path: str) -> str:
         return f.read()
 
 
-def read_pdf(path: str) -> str:
-    text = []
-    page_count = 0
-    with fitz.open(path) as doc:
-        for page in doc:
-            page_count += 1
-            page_text = page.get_text("text")
-            print("*", end="", flush=True)
-            if page_count % 100 == 0:
-                print("\n", end="", flush=True)
-            if page_text:
-                text.append(page_text)
-
-    print("\nDone reading file:"+ path)
-    return "\n".join(text)
-
-
 def ingest_folder(data_dir: str):
     all_chunks: list[str] = []
 
@@ -45,9 +28,6 @@ def ingest_folder(data_dir: str):
         try:
             if filename.lower().endswith(".txt") or filename.lower().endswith(".md"):
                 raw_text = read_txt(path)
-
-            elif filename.lower().endswith(".pdf"):
-                raw_text = read_pdf(path)
 
             else:
                 print(f"Skipping unsupported file: {filename}")
