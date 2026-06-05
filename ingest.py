@@ -1,6 +1,7 @@
 import os
 import pickle
 import faiss
+import torch
 from sentence_transformers import SentenceTransformer
 
 from rag.llm_client import chunk_text, SENTENCE_TRANSFORMER
@@ -63,7 +64,8 @@ def ingest_folder(data_dir: str):
     return all_chunks
 
 def embed_chunks(chunks):
-    model = SentenceTransformer(SENTENCE_TRANSFORMER)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
     embeddings = model.encode(chunks, normalize_embeddings=True)
     print("Embeddings Chunks Please be patient.")
     dim = embeddings.shape[1]
