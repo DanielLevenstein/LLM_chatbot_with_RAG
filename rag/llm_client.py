@@ -4,6 +4,7 @@ import faiss
 import numpy as np
 import os
 from sentence_transformers import SentenceTransformer
+import torch
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
@@ -44,7 +45,8 @@ def load_rag_assets():
     with open(CHUNKS_PATH, "rb") as f:
         chunks = pickle.load(f)
 
-    model = SentenceTransformer(SENTENCE_TRANSFORMER)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
 
     return index, chunks, model
 
@@ -128,7 +130,8 @@ def generate_response_with_context(llm, instruction: str, context: str, question
 
 def generate_response_using_rag(llm, instruction: str, question: str) -> str:
     index = faiss.read_index(INDEX_PATH)
-    model = SentenceTransformer(SENTENCE_TRANSFORMER)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
     with open(CHUNKS_PATH, "rb") as f:
         chunks = pickle.load(f)
     context = retrieve(question, index, chunks, model)

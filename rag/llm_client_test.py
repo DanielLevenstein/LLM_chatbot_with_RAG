@@ -1,4 +1,5 @@
 import unittest
+import torch
 
 from rag.llm_client import (
     trim_response,
@@ -21,7 +22,8 @@ class LlmClientTest(unittest.TestCase):
 
     def test_retrieve_chunks(self):
         index = faiss.read_index(INDEX_PATH)
-        model = SentenceTransformer(SENTENCE_TRANSFORMER)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
         with open(CHUNKS_PATH, "rb") as f:
             chunks = pickle.load(f)
 
