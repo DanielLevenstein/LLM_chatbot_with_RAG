@@ -5,7 +5,6 @@ import numpy as np
 import os
 import time
 from sentence_transformers import SentenceTransformer
-import torch
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
