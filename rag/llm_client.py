@@ -173,11 +173,20 @@ def retrieve(query: str, index, chunks, model, k=TOP_K):
     return retrieved_chunks
 
 def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be greater than zero")
+    if overlap < 0 or overlap >= chunk_size:
+        raise ValueError("overlap must be non-negative and smaller than chunk_size")
+
     chunks = []
+    text_len = len(text)
     start = 0
-    print(f"Text length: {len(text)}")
-    while start < len(text):
-        end = start + chunk_size
+
+    while start < text_len:
+        end = min(start + chunk_size, text_len)
         chunks.append(text[start:end])
-        start = end - overlap
+        if end == text_len:
+            break
+        start += chunk_size - overlap
+
     return chunks
