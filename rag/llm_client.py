@@ -1,10 +1,16 @@
 from datetime import datetime
+import json
 import pickle
 import faiss
 import numpy as np
 import os
 import time
 from sentence_transformers import SentenceTransformer
+
+try:
+    import torch
+except ImportError:
+    torch = None
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
@@ -20,14 +26,32 @@ INDEX_PATH = "index/index.faiss"
 CHUNKS_PATH = "index/chunks.pkl"
 
 TOP_K = 4
-# Model Options for MODEL_PATH = "unsloth/Qwen3-4B-GGUF"
-# Qwen3-4B-BF16.gguf, 8.05 GB
-# Qwen3-4B-Q8_0.gguf, 4.28 GB, 53 s
-# Qwen3-4B-Q6_K.gguf, 3.31 GB
-# Qwen3-4B-Q5_K_M.gguf, 2.85 GB
 
-MODEL_PATH = "unsloth/Qwen3-4B-GGUF"
-MODEL_FILENAME = "Qwen3-4B-Q5_K_M.gguf"
+MODEL_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "model_default.json")
+
+def load_model_config():
+    default = {
+        "model_path": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
+        "model_filename": "tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
+    }
+    try:
+        with open(MODEL_CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        print(f"Model config not found at {MODEL_CONFIG_PATH}, using defaults.")
+        return default
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse model config: {e}. Using defaults.")
+        return default
+
+    return {
+        "model_path": config.get("model_path", default["model_path"]),
+        "model_filename": config.get("model_filename", default["model_filename"]),
+    }
+
+MODEL_SETTINGS = load_model_config()
+MODEL_PATH = MODEL_SETTINGS["model_path"]
+MODEL_FILENAME = MODEL_SETTINGS["model_filename"]
 _client = None
 _index = None
 _chunks = None
@@ -66,7 +90,7 @@ def load_rag_assets():
         with open(CHUNKS_PATH, "rb") as f:
             _chunks = pickle.load(f)
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = "cuda" if torch is not None and torch.cuda.is_available() else "cpu"
         _embed_model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
 
     return _index, _chunks, _embed_model
