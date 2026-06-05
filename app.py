@@ -1,3 +1,7 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 import streamlit as st
 from huggingface_hub import hf_hub_download
 from chatbot.chatbot import ChatBot
