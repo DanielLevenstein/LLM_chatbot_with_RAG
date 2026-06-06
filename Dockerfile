@@ -1,4 +1,4 @@
-FROM python:3.13.5-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --prefer-binary llama-cpp-python
 
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
