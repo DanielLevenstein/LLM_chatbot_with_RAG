@@ -1,7 +1,6 @@
 import os
 import pickle
 import faiss
-from sentence_transformers import SentenceTransformer
 
 from rag.llm_client import chunk_text, SENTENCE_TRANSFORMER
 
@@ -13,23 +12,6 @@ OUTPUT_CHUNKS_PATH = "index/chunks.pkl"
 def read_txt(path: str) -> str:
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         return f.read()
-
-
-def read_pdf(path: str) -> str:
-    text = []
-    page_count = 0
-    with fitz.open(path) as doc:
-        for page in doc:
-            page_count += 1
-            page_text = page.get_text("text")
-            print("*", end="", flush=True)
-            if page_count % 100 == 0:
-                print("\n", end="", flush=True)
-            if page_text:
-                text.append(page_text)
-
-    print("\nDone reading file:"+ path)
-    return "\n".join(text)
 
 
 def ingest_folder(data_dir: str):
@@ -47,9 +29,6 @@ def ingest_folder(data_dir: str):
             if filename.lower().endswith(".txt") or filename.lower().endswith(".md"):
                 raw_text = read_txt(path)
 
-            elif filename.lower().endswith(".pdf"):
-                raw_text = read_pdf(path)
-
             else:
                 print(f"Skipping unsupported file: {filename}")
                 continue
@@ -63,6 +42,8 @@ def ingest_folder(data_dir: str):
     return all_chunks
 
 def embed_chunks(chunks):
+    from sentence_transformers import SentenceTransformer
+
     model = SentenceTransformer(SENTENCE_TRANSFORMER)
     embeddings = model.encode(chunks, normalize_embeddings=True)
     print("Embeddings Chunks Please be patient.")
