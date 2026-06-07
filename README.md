@@ -7,10 +7,19 @@ The system crawls selected AWS documentation pages, processes and chunks the con
 and stores them in a FAISS index for fast retrieval. When a user submits a question, the chatbot retrieves the
 most relevant documentation fragments and uses them as grounded context for response generation.
 
+### System Requirements
+
+AWS Documentation RAG Assistant v0.0.1 uses Python version 3.11 and requires at least of disk space.
+Docker image: daniellevenstein/aws-documentation-rag: latest is live at https://aws-documentation-rag-latest.onrender.com/
+Image Size: 15.8 GB
+Size Compressed: 5.9 GB
+Container Size: 9.6 GB
+Index Size: 14 MB
+
 ## Current AWS Coverage
 
 ```
-["cli", "cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
+["cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
             "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
             "sagemaker", "vpc", "xray" ]
 
