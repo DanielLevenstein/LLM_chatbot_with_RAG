@@ -9,6 +9,7 @@ import os
 import time
 from threading import RLock
 
+from huggingface_hub.errors import HfHubHTTPError
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 

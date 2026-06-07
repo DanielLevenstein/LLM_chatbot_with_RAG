@@ -19,8 +19,11 @@ Latest Container Stats
 Image Size: 2.97 GB
 Index Size: 14 MB
 Model Size: 483 MB
-Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
+Chunk Size: 500
+Batch Size: 512
+Context Window: 4096
 
+Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
 | Version | Image Size | Change                           |
 | ------- | ---------- | -------------------------------- |
