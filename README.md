@@ -27,19 +27,13 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 |---------|------------|-----------------------------------------------------|
 | v0.0.1  | 15.8 GB    | First working build onrender.com                    |
 | v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1                         |
-| v0.1.1  |            | Added button to load model and tweaked model params |
+| v0.1.1  | 2.97 GB    | Added button to load model and tweaked model params |
 
 
 | Version | Batch Size | Chunk Size | Context Window | Threads | max_tokens | temperature | repeat_penalty |
 |---------|------------|------------|----------------|---------|------------|-------------|----------------|
-| v0.1.1  | 256        | 500        | 1096           | 4       | 256        | 0.3         | 1.1            |
-| v0.1.0  | 512        | 500        | 4096           | -       | 512        | 0.0         | 1.2            |
-
---
-
-Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
-
-
+| v0.1.0  | 512        | 500        | 4096           | 2       | 512        | 0.0         | 1.2            | 
+| v0.1.1  | 256        | 500        | 1096           | 4       | 256        | 0.3         | 1.1            | 
 
 ## Current AWS Coverage
 
