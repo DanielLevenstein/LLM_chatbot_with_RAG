@@ -1,4 +1,4 @@
-FROM python:3.13.5-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip setuptools wheel
+RUN pip install --prefer-binary llama-cpp-python
 
 COPY requirements.txt ./
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY index ./index
 COPY app.py app.py

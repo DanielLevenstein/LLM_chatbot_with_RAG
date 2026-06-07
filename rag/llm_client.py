@@ -1,18 +1,20 @@
+import atexit
+import gc
+import json
 from datetime import datetime
 import pickle
 import faiss
 import numpy as np
 import os
 import time
-from sentence_transformers import SentenceTransformer
-import torch
+from threading import RLock
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 from huggingface_hub.utils import HfHubHTTPError
 
 
-CHUNK_SIZE = 1024
+CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 SENTENCE_TRANSFORMER = "sentence-transformers/all-MiniLM-L6-v2"
@@ -21,25 +23,82 @@ INDEX_PATH = "index/index.faiss"
 CHUNKS_PATH = "index/chunks.pkl"
 
 TOP_K = 4
-# Model Options for MODEL_PATH = "unsloth/Qwen3-4B-GGUF"
-# Qwen3-4B-BF16.gguf, 8.05 GB
-# Qwen3-4B-Q8_0.gguf, 4.28 GB, 53 s
-# Qwen3-4B-Q6_K.gguf, 3.31 GB
-# Qwen3-4B-Q5_K_M.gguf, 2.85 GB
 
-MODEL_PATH = "unsloth/Qwen3-4B-GGUF"
-MODEL_FILENAME = "Qwen3-4B-Q5_K_M.gguf"
+MODEL_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "model_default.json")
+
+def load_model_config():
+    default = {
+        "model_path": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
+        "model_filename": "tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
+    }
+    try:
+        with open(MODEL_CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        print(f"Model config not found at {MODEL_CONFIG_PATH}, using defaults.")
+        return default
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse model config: {e}. Using defaults.")
+        return default
+
+    return {
+        "model_path": config.get("model_path", default["model_path"]),
+        "model_filename": config.get("model_filename", default["model_filename"]),
+    }
+
+MODEL_SETTINGS = load_model_config()
+MODEL_PATH = MODEL_SETTINGS["model_path"]
+MODEL_FILENAME = MODEL_SETTINGS["model_filename"]
 _client = None
 _index = None
 _chunks = None
 _embed_model = None
+_client_lock = RLock()
+_assets_lock = RLock()
 
 
 def get_llm_client():
     global _client
     if _client is None:
-        _client = create_llm(MODEL_PATH, MODEL_FILENAME)
+        with _client_lock:
+            if _client is None:
+                _client = create_llm(MODEL_PATH, MODEL_FILENAME)
     return _client
+
+
+def _close_resource(resource):
+    close = getattr(resource, "close", None)
+    if callable(close):
+        close()
+
+
+def close_llm_client():
+    global _client
+    with _client_lock:
+        client = _client
+        _client = None
+
+    if client is not None:
+        _close_resource(client)
+        gc.collect()
+
+
+def close_rag_assets():
+    global _index, _chunks, _embed_model
+    with _assets_lock:
+        _index = None
+        _chunks = None
+        _embed_model = None
+
+    gc.collect()
+
+
+def close_all_resources():
+    close_llm_client()
+    close_rag_assets()
+
+
+atexit.register(close_all_resources)
 
 
 def download_model(model_name_or_path, model_basename, max_retries=3, initial_backoff=5):
@@ -61,14 +120,20 @@ def download_model(model_name_or_path, model_basename, max_retries=3, initial_ba
 def load_rag_assets():
     global _index, _chunks, _embed_model
     if _index is None or _chunks is None or _embed_model is None:
-        print("CWD:", os.getcwd())
-        _index = faiss.read_index(INDEX_PATH)
+        with _assets_lock:
+            if _index is None or _chunks is None or _embed_model is None:
+                print("CWD:", os.getcwd())
+                index = faiss.read_index(INDEX_PATH)
 
-        with open(CHUNKS_PATH, "rb") as f:
-            _chunks = pickle.load(f)
+                with open(CHUNKS_PATH, "rb") as f:
+                    chunks = pickle.load(f)
 
-        device = "cpu"
-        _embed_model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
+                from sentence_transformers import SentenceTransformer
+
+                embed_model = SentenceTransformer(SENTENCE_TRANSFORMER)
+                _index = index
+                _chunks = chunks
+                _embed_model = embed_model
 
     return _index, _chunks, _embed_model
 
@@ -91,7 +156,7 @@ def create_llm(model_name_or_path, model_basename):
     import multiprocessing
     cpu_count = multiprocessing.cpu_count()
     n_threads = max(4, cpu_count - 1)  # Use most cores, at least 4
-    
+
     llm = Llama(
         model_path=model_path,
         n_threads=n_threads,  # Use detected CPU cores for better performance
