@@ -9,14 +9,20 @@ most relevant documentation fragments and uses them as grounded context for resp
 
 ### System Requirements
 
-AWS Documentation RAG Assistant V0.0.1 uses Python version 3.11 and requires at least 5.9 GB of disk space.
-Docker image: daniellevenstein/aws-documentation-rag: latest is live at https://aws-documentation-rag-latest.onrender.com/
-Currently page loads but fails with a 503 error when the question is asked. 
-
+#### Releases
+AWS Documentation RAG Assistant v0 uses Python version 3.11 is a 15 GB image. 
+It's currently deployed on render.com but is failing with a 503 error when the Ask button is clicked. 
+Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://aws-documentation-rag-latest.onrender.com/
+- v0.0.1
+Image Size: 15.8 GB
+Size Compressed: 5.9 GB
+Container Size: 9.6 GB
+Index Size: 14 MB
+- v0.1.0
 ## Current AWS Coverage
 
 ```
-["cli", "cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
+["cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
             "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
             "sagemaker", "vpc", "xray" ]
 

@@ -11,10 +11,9 @@ from threading import RLock
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
-from huggingface_hub.utils import HfHubHTTPError
 
 
-CHUNK_SIZE = 1024
+CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 SENTENCE_TRANSFORMER = "sentence-transformers/all-MiniLM-L6-v2"
