@@ -9,7 +9,6 @@ import os
 import time
 from threading import RLock
 
-from huggingface_hub.errors import HfHubHTTPError
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 from huggingface_hub.utils import HfHubHTTPError
@@ -17,6 +16,10 @@ from huggingface_hub.utils import HfHubHTTPError
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
+TOP_P = .95
+MAX_TOKENS = 256
+TEMPERATURE = 0.3
+REPEAT_PENALTY = 1.1
 
 SENTENCE_TRANSFORMER = "sentence-transformers/all-MiniLM-L6-v2"
 
@@ -187,10 +190,10 @@ def generate_response_without_context(llm, instruction: str, question: str) -> s
                 "content": question,
             },
         ],
-        max_tokens=256,
-        temperature=0.3,
-        top_p=0.95,
-        repeat_penalty=1.1,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        repeat_penalty=REPEAT_PENALTY,
     )
 
     end_time = datetime.now()
@@ -215,10 +218,10 @@ def generate_response_with_context(llm, instruction: str, context: str, question
                 "content": question,
             },
         ],
-        max_tokens=256,
-        temperature=0.3,
-        top_p=0.95,
-        repeat_penalty=1.1,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        repeat_penalty=REPEAT_PENALTY,
     )
     return trim_response(response["choices"][0]["message"]["content"])
 
@@ -241,10 +244,10 @@ def generate_response_using_rag(llm, instruction: str, question: str) -> str:
                 "content": question,
             },
         ],
-        max_tokens=256,
-        temperature=0.3,
-        top_p=0.95,
-        repeat_penalty=1.1,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        repeat_penalty=REPEAT_PENALTY,
     )
     return trim_response(response["choices"][0]["message"]["content"])
 

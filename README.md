@@ -22,30 +22,24 @@ Index Size: 14 MB
 Model Size: 483 MB
 Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
--- New --
-Batch Size: 256
-Chunk Size: 500
-Context Window: 1096
-Threads: 4
-max_tokens: 256
-temperature: 0.3
-repeate_penalty: 1.1
---Old --
-Chunk Size: 500
-Batch Size: 512
-Context Window: 4096
-max_tokens: 512
-temperature: 0.0
-repeat_penalty: 1.2
+
+| Version | Image Size | Change                                              |
+|---------|------------|-----------------------------------------------------|
+| v0.0.1  | 15.8 GB    | First working build onrender.com                    |
+| v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1                         |
+| v0.1.1  |            | Added button to load model and tweaked model params |
+
+
+| Version | Batch Size | Chunk Size | Context Window | Threads | max_tokens | temperature | repeat_penalty |
+|---------|------------|------------|----------------|---------|------------|-------------|----------------|
+| v0.1.1  | 256        | 500        | 1096           | 4       | 256        | 0.3         | 1.1            |
+| v0.1.0  | 512        | 500        | 4096           | -       | 512        | 0.0         | 1.2            |
 
 --
 
 Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
-| Version | Image Size | Change                           |
-|---------|------------|----------------------------------|
-| v0.0.1  | 15.8 GB    | First working build onrender.com |
-| v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1      |
+
 
 ## Current AWS Coverage
 
