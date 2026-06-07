@@ -1,7 +1,7 @@
-from datetime import datetime
 import atexit
 import gc
 import json
+from datetime import datetime
 import pickle
 import faiss
 import numpy as np
@@ -11,11 +11,18 @@ from threading import RLock
 
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
+from huggingface_hub.utils import HfHubHTTPError
 
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
-
+TOP_P = .95
+MAX_TOKENS = 500
+TEMPERATURE = 0.0
+REPEAT_PENALTY = 1.2
+N_GPU_LAYERS = 50
+N_BATCHES = 256
+N_CTX = 2048
 SENTENCE_TRANSFORMER = "sentence-transformers/all-MiniLM-L6-v2"
 
 INDEX_PATH = "index/index.faiss"
@@ -151,16 +158,23 @@ def create_llm(model_name_or_path, model_basename):
     print(os.path.exists(model_path))
     print(os.path.getsize(model_path))
 
+    # Detect available CPU cores
+    import multiprocessing
+    cpu_count = multiprocessing.cpu_count()
+    n_threads = max(4, cpu_count - 1)  # Use most cores, at least 4
+
     llm = Llama(
         model_path=model_path,
-        n_threads=2,  # CPU cores
-        n_batch=512,  # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU.
-        n_gpu_layers=43,  # Change this value based on your model and your GPU VRAM pool.
-        n_ctx=4096,  # Context window
+        n_threads=n_threads,  # Use detected CPU cores for better performance
+        n_batch=N_BATCHES,  # Increase batch size for faster inference
+        n_gpu_layers=N_GPU_LAYERS,  # Use CPU-only model execution if GPU is not required
+        n_ctx=N_CTX,  # Reduced context window for faster processing
+        verbose=False,  # Reduce console output
     )
     end_time = datetime.now()
     elapsed_time = end_time - start_time
     print(f"Model download to {model_path}\n Download time: {elapsed_time}")
+    print(f"LLM initialized with {n_threads} threads")
     return llm
 
 
@@ -178,10 +192,10 @@ def generate_response_without_context(llm, instruction: str, question: str) -> s
                 "content": question,
             },
         ],
-        max_tokens=512,
-        temperature=0.0,
-        top_p=0.95,
-        repeat_penalty=1.2,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        repeat_penalty=REPEAT_PENALTY,
     )
 
     end_time = datetime.now()
@@ -206,10 +220,10 @@ def generate_response_with_context(llm, instruction: str, context: str, question
                 "content": question,
             },
         ],
-        max_tokens=512,
-        temperature=0.0,
-        top_p=0.95,
-        repeat_penalty=1.2,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        repeat_penalty=REPEAT_PENALTY,
     )
     return trim_response(response["choices"][0]["message"]["content"])
 
@@ -232,10 +246,10 @@ def generate_response_using_rag(llm, instruction: str, question: str) -> str:
                 "content": question,
             },
         ],
-        max_tokens=512,
-        temperature=0.0,
-        top_p=0.95,
-        repeat_penalty=1.2,
+        max_tokens=MAX_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        repeat_penalty=REPEAT_PENALTY,
     )
     return trim_response(response["choices"][0]["message"]["content"])
 
