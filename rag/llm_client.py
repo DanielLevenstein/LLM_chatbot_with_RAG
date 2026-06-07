@@ -67,7 +67,7 @@ def load_rag_assets():
         with open(CHUNKS_PATH, "rb") as f:
             _chunks = pickle.load(f)
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = "cpu"
         _embed_model = SentenceTransformer(SENTENCE_TRANSFORMER, device=device)
 
     return _index, _chunks, _embed_model
@@ -87,16 +87,23 @@ def create_llm(model_name_or_path, model_basename):
     print(os.path.exists(model_path))
     print(os.path.getsize(model_path))
 
+    # Detect available CPU cores
+    import multiprocessing
+    cpu_count = multiprocessing.cpu_count()
+    n_threads = max(4, cpu_count - 1)  # Use most cores, at least 4
+    
     llm = Llama(
         model_path=model_path,
-        n_threads=2,  # CPU cores
-        n_batch=512,  # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU.
-        n_gpu_layers=43,  # Change this value based on your model and your GPU VRAM pool.
-        n_ctx=4096,  # Context window
+        n_threads=n_threads,  # Use detected CPU cores for better performance
+        n_batch=256,  # Increase batch size for faster inference
+        n_gpu_layers=0,  # Use CPU-only model execution if GPU is not required
+        n_ctx=1024,  # Reduced context window for faster processing
+        verbose=False,  # Reduce console output
     )
     end_time = datetime.now()
     elapsed_time = end_time - start_time
     print(f"Model download to {model_path}\n Download time: {elapsed_time}")
+    print(f"LLM initialized with {n_threads} threads")
     return llm
 
 
@@ -114,10 +121,10 @@ def generate_response_without_context(llm, instruction: str, question: str) -> s
                 "content": question,
             },
         ],
-        max_tokens=512,
-        temperature=0.0,
+        max_tokens=256,
+        temperature=0.3,
         top_p=0.95,
-        repeat_penalty=1.2,
+        repeat_penalty=1.1,
     )
 
     end_time = datetime.now()
@@ -142,10 +149,10 @@ def generate_response_with_context(llm, instruction: str, context: str, question
                 "content": question,
             },
         ],
-        max_tokens=512,
-        temperature=0.0,
+        max_tokens=256,
+        temperature=0.3,
         top_p=0.95,
-        repeat_penalty=1.2,
+        repeat_penalty=1.1,
     )
     return trim_response(response["choices"][0]["message"]["content"])
 
@@ -168,10 +175,10 @@ def generate_response_using_rag(llm, instruction: str, question: str) -> str:
                 "content": question,
             },
         ],
-        max_tokens=512,
-        temperature=0.0,
+        max_tokens=256,
+        temperature=0.3,
         top_p=0.95,
-        repeat_penalty=1.2,
+        repeat_penalty=1.1,
     )
     return trim_response(response["choices"][0]["message"]["content"])
 
