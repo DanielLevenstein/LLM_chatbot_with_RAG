@@ -18,10 +18,29 @@ Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://a
 Latest Container Stats
 Image Size: 2.97 GB
 Index Size: 14 MB
-Batch Size: 256
-Chunk Size: 500
+
+Model Size: 483 MB
 Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
+-- New --
+Batch Size: 256
+Chunk Size: 500
+Context Window: 1096
+Threads: 4
+max_tokens: 256
+temperature: 0.3
+repeate_penalty: 1.1
+--Old --
+Chunk Size: 500
+Batch Size: 512
+Context Window: 4096
+max_tokens: 512
+temperature: 0.0
+repeat_penalty: 1.2
+
+--
+
+Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
 | Version | Image Size | Change                           |
 |---------|------------|----------------------------------|
