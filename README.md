@@ -18,19 +18,23 @@ Latest Container Stats
 Image Size: 2.97 GB
 Index Size: 14 MB
 Model Size: 483 MB
-Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
 | Version | Image Size | Change                           |
 |---------|------------|----------------------------------|
 | v0.0.1  | 15.8 GB    | First working build onrender.com |
 | v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1      | 
 
+| Models Used                        | Model Size | Version  |
+|------------------------------------|------------|----------|
+| tinyllama-1.1b-chat-v1.0.Q2_K.gguf | 483 MB     | v0.1.0   |
+| all-MiniLM-L6-v2                   | 91 MB      | v0.0.1 + |
+
 ## Current AWS Coverage
 
 ```
 ["cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
-            "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
-            "sagemaker", "vpc", "xray" ]
+    "cli", "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
+     "sagemaker", "vpc", "xray" ]
 
 ```
 
@@ -43,7 +47,7 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
 ## Running in Docker
 
-Latest Prebuild Image: `docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:v0.0.1`
+Latest Prebuild Image: `docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:v0.1.0`
 
 ## Running Locally
 
