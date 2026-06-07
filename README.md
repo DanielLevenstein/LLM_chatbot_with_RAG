@@ -18,11 +18,12 @@ Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://a
 Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
 
-| Version | Image Size | Change                                              |
-|---------|------------|-----------------------------------------------------|
-| v0.0.1  | 15.8 GB    | First working build onrender.com                    |
-| v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1                         |
-| v0.1.1  | 2.97 GB    | Added button to load model and tweaked model params |
+| Version | Image Size | Change                                        |
+|---------|------------|-----------------------------------------------|
+| v0.0.1  | 15.8 GB    | First working build onrender.com 15.8 GB      |
+| v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1 to fix image size |
+| v0.1.1  | 2.97 GB    | Implemented Lazy Loading                      |
+| v0.2.0  | 2.97 GB    | Implemented context aware chunking            |
 
 
 | Version | Batch Size | Chunk Size | Context Window | Threads | max_tokens | temperature | repeat_penalty | GPU Layers |
@@ -30,7 +31,8 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 | v0.1.0  | 512        | 500        | 4096           | 2       | 512        | 0.0         | 1.2            | 42         |
 | v0.1.1  | 256        | 500        | 1096           | 4       | 256        | 0.3         | 1.1            | 0          |
 | v0.1.2  | 512        | 500        | 2048           | 4       | 512        | 0.0         | 1.2            | 0          |
-| v0.1.3  | 512        | 500        | 2048           | 4       | 512        | 0.0         | 1.2            | 50         |
+| v0.2.0  | 512        | 500        | 2048           | 4       | 512        | 0.0         | 1.2            | 50         |
+
 ## Current AWS Coverage
 
 ```
