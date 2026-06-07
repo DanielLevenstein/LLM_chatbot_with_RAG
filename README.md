@@ -15,25 +15,23 @@ AWS Documentation RAG Assistant v0 uses Python version 3.11 and runs on port 850
 It's currently deployed on render.com but is failing with a 503 error when the Ask button is clicked.
 Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://aws-documentation-rag-latest.onrender.com/
 
-| Version | Image Size | Change                                              |
-|---------|------------|-----------------------------------------------------|
-| v0.0.1  | 15.8 GB    | First working build onrender.com                    |
-| v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1                         |
-| v0.1.1  | 2.97 GB    | Added button to load model and tweaked model params |
+| Version | Change                                            |
+|---------|---------------------------------------------------|
+| v0.0.1  | First working build onrender.com 16 GB image      |
+| v0.1.0  | Downgraded to pytorch 2.7.1 reduced to 3 GB image |
+| v0.2.0  | Implemented Context aware chunking                |
 
-
-| Version | Batch Size | Chunk Size | Context Window | Threads | max_tokens | temperature | repeat_penalty |
-|---------|------------|------------|----------------|---------|------------|-------------|----------------|
-| v0.1.0  | 512        | 500        | 4096           | 2       | 512        | 0.0         | 1.2            | 
-| v0.1.1  | 256        | 500        | 1096           | 4       | 256        | 0.3         | 1.1            | 
-| v0.1.2  | 512        | 500        | 2048           | 4       | 512        | 0.0         | 1.2            | 
+| Models Used                        | Model Size | Version  |
+|------------------------------------|------------|----------|
+| tinyllama-1.1b-chat-v1.0.Q2_K.gguf | 483 MB     | v0.1.0   |
+| all-MiniLM-L6-v2                   | 91 MB      | v0.0.1 + |
 
 ## Current AWS Coverage
 
 ```
 ["cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
-            "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
-            "sagemaker", "vpc", "xray" ]
+    "cli", "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
+     "sagemaker", "vpc", "xray" ]
 
 ```
 
@@ -46,7 +44,7 @@ Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://a
 
 ## Running in Docker
 
-Latest Prebuild Image: `docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:v0.1.0`
+Latest Prebuild Image: `docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:latest`
 
 ## Running Locally
 
