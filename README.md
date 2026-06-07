@@ -22,7 +22,7 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 |---------|------------|-----------------------------------------------|
 | v0.0.1  | 15.8 GB    | First working build onrender.com 15.8 GB      |
 | v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1 to fix image size |
-| v0.1.1  | 2.97 GB    | Implemented Lazy Loading                      |
+| v0.1.1  | 2.97 GB    | Implemented Lazy Loading  (not merged)        |
 | v0.2.0  | 2.97 GB    | Implemented context aware chunking            |
 
 
