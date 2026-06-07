@@ -20,6 +20,7 @@ TOP_P = .95
 MAX_TOKENS = 500
 TEMPERATURE = 0.0
 REPEAT_PENALTY = 1.2
+N_GPU_LAYERS = 50
 N_BATCHES = 256
 N_CTX = 2048
 SENTENCE_TRANSFORMER = "sentence-transformers/all-MiniLM-L6-v2"
@@ -166,7 +167,7 @@ def create_llm(model_name_or_path, model_basename):
         model_path=model_path,
         n_threads=n_threads,  # Use detected CPU cores for better performance
         n_batch=N_BATCHES,  # Increase batch size for faster inference
-        n_gpu_layers=0,  # Use CPU-only model execution if GPU is not required
+        n_gpu_layers=N_GPU_LAYERS,  # Use CPU-only model execution if GPU is not required
         n_ctx=N_CTX,  # Reduced context window for faster processing
         verbose=False,  # Reduce console output
     )
