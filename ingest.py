@@ -14,6 +14,14 @@ def read_txt(path: str) -> str:
         return f.read()
 
 
+def context_aware_chunk_text(raw_text: str) -> list[str]:
+    """
+    Splits raw text into context-aware chunks by preserving paragraphs or sections.
+    Two consecutive newline characters (\n\n) signify a new paragraph or section.
+    """
+    return [chunk.strip() for chunk in raw_text.split("\n\n") if chunk.strip()]
+
+
 def ingest_folder(data_dir: str):
     all_chunks: list[str] = []
 
@@ -33,7 +41,7 @@ def ingest_folder(data_dir: str):
                 print(f"Skipping unsupported file: {filename}")
                 continue
 
-            chunks = chunk_text(raw_text)
+            chunks = context_aware_chunk_text(raw_text)
             all_chunks.extend(chunks)
 
         except Exception as e:
