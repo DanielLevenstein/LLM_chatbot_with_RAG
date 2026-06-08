@@ -10,51 +10,90 @@ from threading import RLock
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
-TOP_P = .95
-MAX_TOKENS = 500
-TEMPERATURE = 0.0
-REPEAT_PENALTY = 1.2
-N_GPU_LAYERS = 50
-N_BATCHES = 256
-N_CTX = 2048
-SENTENCE_TRANSFORMER = "sentence-transformers/all-MiniLM-L6-v2"
-
-INDEX_PATH = "index/index.faiss"
-CHUNKS_PATH = "index/chunks.pkl"
-
-TOP_K = 4
-
 MODEL_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "model_default.json")
 
-def load_model_config():
-    default = {
-        "model_path": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
-        "model_filename": "tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
-    }
+
+DEFAULT_MODEL_CONFIG = {
+    "model_path": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
+    "model_filename": "tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
+    "top_p": 0.95,
+    "max_tokens": 500,
+    "temperature": 0.0,
+    "repeat_penalty": 1.2,
+    "n_gpu_layers": 50,
+    "n_batches": 256,
+    "n_ctx": 2048,
+    "n_threads": None,
+    "sentence_transformer": "sentence-transformers/all-MiniLM-L6-v2",
+    "top_k": 4,
+    "index_path": "index/index.faiss",
+    "chunks_path": "index/chunks.pkl",
+}
+
+def load_model_config(overrides=None):
+    config = DEFAULT_MODEL_CONFIG.copy()
     try:
         with open(MODEL_CONFIG_PATH, "r", encoding="utf-8") as f:
-            config = json.load(f)
+            config.update(json.load(f))
     except FileNotFoundError:
         print(f"Model config not found at {MODEL_CONFIG_PATH}, using defaults.")
-        return default
     except json.JSONDecodeError as e:
         print(f"Failed to parse model config: {e}. Using defaults.")
-        return default
 
-    return {
-        "model_path": config.get("model_path", default["model_path"]),
-        "model_filename": config.get("model_filename", default["model_filename"]),
-    }
+    if overrides:
+        config.update({key: value for key, value in overrides.items() if value is not None})
+    return config
+
+
+def apply_model_config(config):
+    global MODEL_SETTINGS, MODEL_PATH, MODEL_FILENAME, TOP_P, MAX_TOKENS, TEMPERATURE
+    global REPEAT_PENALTY, N_GPU_LAYERS, N_BATCHES, N_CTX, N_THREADS
+    global SENTENCE_TRANSFORMER, INDEX_PATH, CHUNKS_PATH, TOP_K
+
+    MODEL_SETTINGS = config
+    MODEL_PATH = config["model_path"]
+    MODEL_FILENAME = config["model_filename"]
+    TOP_P = config["top_p"]
+    MAX_TOKENS = config["max_tokens"]
+    TEMPERATURE = config["temperature"]
+    REPEAT_PENALTY = config["repeat_penalty"]
+    N_GPU_LAYERS = config["n_gpu_layers"]
+    N_BATCHES = config["n_batches"]
+    N_CTX = config["n_ctx"]
+    N_THREADS = config["n_threads"]
+    SENTENCE_TRANSFORMER = config["sentence_transformer"]
+    TOP_K = config["top_k"]
+    INDEX_PATH = config["index_path"]
+    CHUNKS_PATH = config["chunks_path"]
+
+
+def override_model_config(overrides):
+    close_all_resources()
+    apply_model_config(load_model_config(overrides))
+
 
 MODEL_SETTINGS = load_model_config()
-MODEL_PATH = MODEL_SETTINGS["model_path"]
-MODEL_FILENAME = MODEL_SETTINGS["model_filename"]
+MODEL_PATH = None
+MODEL_FILENAME = None
+TOP_P = None
+MAX_TOKENS = None
+TEMPERATURE = None
+REPEAT_PENALTY = None
+N_GPU_LAYERS = None
+N_BATCHES = None
+N_CTX = None
+N_THREADS = None
+SENTENCE_TRANSFORMER = None
+TOP_K = None
+INDEX_PATH = None
+CHUNKS_PATH = None
 _client = None
 _index = None
 _chunks = None
 _embed_model = None
 _client_lock = RLock()
 _assets_lock = RLock()
+apply_model_config(MODEL_SETTINGS)
 
 
 def get_llm_client():
@@ -146,7 +185,7 @@ def load_rag_assets():
 def create_llm(model_name_or_path, model_basename):
     from llama_cpp import Llama
 
-    print(f"Creating model: {MODEL_FILENAME}")
+    print(f"Creating model: {model_basename}")
     start_time = datetime.now()
     # Using hf_hub_download to download a model from the Hugging Face model hub
     # The repo_id parameter specifies the model name or path in the Hugging Face repository
@@ -162,7 +201,7 @@ def create_llm(model_name_or_path, model_basename):
     # Detect available CPU cores
     import multiprocessing
     cpu_count = multiprocessing.cpu_count()
-    n_threads = max(4, cpu_count - 1)  # Use most cores, at least 4
+    n_threads = N_THREADS or max(4, cpu_count - 1)  # Use most cores, at least 4
 
     llm = Llama(
         model_path=model_path,

@@ -1,13 +1,20 @@
 import csv
 import os
+import sys
 import time
 import unittest
+from pathlib import Path
+
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from chatbot.chatbot import ChatBot
 
 
-SAMPLE_QUESTIONS_PATH = "perftest/sample_questions.csv"
-PERF_RESULTS_PATH = "perftest/results_perf.csv"
+SAMPLE_QUESTIONS_PATH = ROOT_DIR / "perftest" / "fixtures" / "sample_questions.csv"
+PERF_RESULTS_PATH = ROOT_DIR / "perftest" / "results" / "batch_perf_results.csv"
 
 
 def _load_sample_questions():
@@ -19,6 +26,7 @@ def _load_sample_questions():
 def _write_perf_result(elapsed_seconds, query):
     file_exists = os.path.exists(PERF_RESULTS_PATH)
 
+    PERF_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(PERF_RESULTS_PATH, "a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["time", "query", "version", "change"])
         if not file_exists:

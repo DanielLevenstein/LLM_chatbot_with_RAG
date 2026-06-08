@@ -16,6 +16,7 @@ from rag import llm_client
 class LlmClientTest(unittest.TestCase):
     def tearDown(self):
         llm_client._client = None
+        llm_client.apply_model_config(llm_client.load_model_config())
 
     def test_trim_response(self):
         self.assertEqual("value", trim_response("<think></think>value"))
@@ -38,6 +39,12 @@ class LlmClientTest(unittest.TestCase):
 
         self.assertEqual([mock_llm] * 8, clients)
         mock_create.assert_called_once_with(llm_client.MODEL_PATH, llm_client.MODEL_FILENAME)
+
+    def test_load_model_config_applies_overrides(self):
+        config = llm_client.load_model_config({"max_tokens": 123, "n_ctx": 456})
+
+        self.assertEqual(123, config["max_tokens"])
+        self.assertEqual(456, config["n_ctx"])
 
     def test_import_does_not_eagerly_load_torch(self):
         result = subprocess.run(
