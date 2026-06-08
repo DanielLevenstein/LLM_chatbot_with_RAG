@@ -9,16 +9,8 @@ from rag.llm_client import (
     trim_response,
     retrieve,
     chunk_text,
-    INDEX_PATH,
-    SENTENCE_TRANSFORMER,
-    CHUNKS_PATH,
 )
 from rag import llm_client
-
-from sentence_transformers import SentenceTransformer
-
-import pickle
-import faiss
 
 
 class LlmClientTest(unittest.TestCase):
@@ -62,13 +54,17 @@ class LlmClientTest(unittest.TestCase):
         self.assertEqual("False", result.stdout.strip())
 
     def test_retrieve_chunks(self):
-        index = faiss.read_index(INDEX_PATH)
-        model = SentenceTransformer(SENTENCE_TRANSFORMER)
-        with open(CHUNKS_PATH, "rb") as f:
-            chunks = pickle.load(f)
+        model = Mock()
+        model.encode.return_value = [0.1, 0.2, 0.3]
+        index = Mock()
+        index.search.return_value = ([0.9, 0.8], [[2, 0]])
+        chunks = ["first chunk", "second chunk", "blood pressure chunk"]
 
-        context = retrieve("Blood Pressure", index, chunks, model)
-        self.assertNotEqual(len(context[0]), 1, "Chunks should be more than 1 character")
+        context = retrieve("Blood Pressure", index, chunks, model, k=2)
+
+        self.assertEqual(["blood pressure chunk", "first chunk"], context)
+        model.encode.assert_called_once_with("Blood Pressure")
+        index.search.assert_called_once()
 
     def test_chunk_text_exact_boundary(self):
         text = "a" * 500

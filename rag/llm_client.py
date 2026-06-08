@@ -3,15 +3,9 @@ import gc
 import json
 from datetime import datetime
 import pickle
-import faiss
-import numpy as np
 import os
 import time
 from threading import RLock
-
-from llama_cpp import Llama
-from huggingface_hub import hf_hub_download
-from huggingface_hub.utils import HfHubHTTPError
 
 
 CHUNK_SIZE = 500
@@ -108,6 +102,9 @@ atexit.register(close_all_resources)
 
 
 def download_model(model_name_or_path, model_basename, max_retries=3, initial_backoff=5):
+    from huggingface_hub import hf_hub_download
+    from huggingface_hub.utils import HfHubHTTPError
+
     for attempt in range(1, max_retries + 1):
         try:
             return hf_hub_download(repo_id=model_name_or_path, filename=model_basename)
@@ -128,6 +125,8 @@ def load_rag_assets():
     if _index is None or _chunks is None or _embed_model is None:
         with _assets_lock:
             if _index is None or _chunks is None or _embed_model is None:
+                import faiss
+
                 print("CWD:", os.getcwd())
                 index = faiss.read_index(INDEX_PATH)
 
@@ -145,6 +144,8 @@ def load_rag_assets():
 
 
 def create_llm(model_name_or_path, model_basename):
+    from llama_cpp import Llama
+
     print(f"Creating model: {MODEL_FILENAME}")
     start_time = datetime.now()
     # Using hf_hub_download to download a model from the Hugging Face model hub
@@ -264,7 +265,12 @@ def trim_response(response_text):
 
 def retrieve(query: str, index, chunks, model, k=TOP_K):
     query_embedding = model.encode(query)
-    query_embedding = np.array([query_embedding]).astype("float32")  # shape (1, dim)
+    try:
+        import numpy as np
+
+        query_embedding = np.array([query_embedding]).astype("float32")  # shape (1, dim)
+    except ImportError:
+        query_embedding = [query_embedding]
 
     scores, indices = index.search(query_embedding, k)
 
