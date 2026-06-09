@@ -80,7 +80,7 @@ This lightweight app will help people study for AWS certifications by generating
 practice test, evaluating the correctness of each answer, and using an LLM to provide personalized feedback for better
 retention.
 
-Unlike Version 1.0, this architecture will avoid Retrieval-Augmented Generation (RAG), vector databases, and FAISS
+Unlike this version, this architecture will avoid Retrieval-Augmented Generation (RAG), vector databases, and FAISS
 indexes in favor of a simpler question-and-evaluation workflow.
 
 ## Running in Docker
