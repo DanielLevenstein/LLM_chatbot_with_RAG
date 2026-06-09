@@ -33,21 +33,26 @@ if "model_loaded" not in st.session_state:
 if "model_status" not in st.session_state:
     st.session_state.model_status = None
 
+load_model_column, ask_column  = st.columns([1, 1])
+
+if "ask_clicked" not in st.session_state:
+    st.session_state.ask_clicked = False
 
 # Input field for user queries
 user_input = st.text_input(
     "Enter your question:",
     disabled=not st.session_state.model_loaded,
     placeholder="Load model first..." if not st.session_state.model_loaded else "",
+    key="user_question",
+    on_change=lambda: st.session_state.update({"ask_clicked": True}) if st.session_state.model_loaded else None,
 )
-
-load_model_column, ask_column  = st.columns([1, 1])
 
 with load_model_column:
     load_model_clicked = st.button("Load Model")
 
 with ask_column:
-    ask_clicked = st.button("Ask Question", disabled=not st.session_state.model_loaded)
+    st.session_state.ask_clicked = st.button("Ask Question",
+                                             disabled=not st.session_state.model_loaded) or st.session_state.ask_clicked
 
 if load_model_clicked:
     with st.spinner("Loading model..."):
@@ -68,7 +73,7 @@ if st.session_state.model_status:
     st.success(st.session_state.model_status)
 
 # Button to submit the query
-if ask_clicked:
+if st.session_state.ask_clicked:
     if user_input.strip():
         with st.spinner('Processing...'):
             try:
