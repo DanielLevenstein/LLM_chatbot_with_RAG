@@ -1,6 +1,9 @@
 FROM python:3.11-slim
 
 WORKDIR /app
+ENV HF_HOME=/app/.cache/huggingface \
+    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers \
+    XDG_CACHE_HOME=/app/.cache
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -8,15 +11,25 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --prefer-binary llama-cpp-python
+RUN pip install --no-cache-dir --no-compile --only-binary=:all: \
+    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu \
+    llama-cpp-python==0.3.28
+
+RUN pip install --no-cache-dir --no-compile --index-url https://download.pytorch.org/whl/cpu torch==2.7.1+cpu
 
 COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --no-compile -r requirements.txt
 
+COPY config/ ./config/
+COPY docker/warm_hf_cache.py ./docker/warm_hf_cache.py
+RUN python docker/warm_hf_cache.py
+
+RUN rm -rf chatbot rag config
 COPY index ./index
 COPY app.py app.py
-COPY chatbot ./chatbot
-COPY rag ./rag
+COPY chatbot/ ./chatbot/
+COPY rag/ ./rag/
+COPY config/ ./config/
 
 EXPOSE 8501
 
