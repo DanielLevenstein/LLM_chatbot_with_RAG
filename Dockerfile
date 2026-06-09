@@ -1,6 +1,9 @@
 FROM python:3.11-slim
 
 WORKDIR /app
+ENV HF_HOME=/app/.cache/huggingface \
+    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers \
+    XDG_CACHE_HOME=/app/.cache
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -12,6 +15,10 @@ RUN pip install --prefer-binary llama-cpp-python
 
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY config/ ./config/
+COPY docker/warm_hf_cache.py ./docker/warm_hf_cache.py
+RUN python docker/warm_hf_cache.py
 
 RUN rm -rf chatbot rag config
 COPY index ./index

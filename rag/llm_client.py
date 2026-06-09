@@ -25,7 +25,8 @@ DEFAULT_MODEL_CONFIG = {
     "n_ctx": 2048,
     "n_threads": None,
     "sentence_transformer": "sentence-transformers/all-MiniLM-L6-v2",
-    "top_k": 4,
+    "top_k": 2,
+    "max_context_chars": 3000,
     "index_path": "index/index.faiss",
     "chunks_path": "index/chunks.pkl",
 }
@@ -48,7 +49,7 @@ def load_model_config(overrides=None):
 def apply_model_config(config):
     global MODEL_SETTINGS, MODEL_PATH, MODEL_FILENAME, TOP_P, MAX_TOKENS, TEMPERATURE
     global REPEAT_PENALTY, N_GPU_LAYERS, N_BATCHES, N_CTX, N_THREADS
-    global SENTENCE_TRANSFORMER, INDEX_PATH, CHUNKS_PATH, TOP_K
+    global SENTENCE_TRANSFORMER, INDEX_PATH, CHUNKS_PATH, TOP_K, MAX_CONTEXT_CHARS
 
     MODEL_SETTINGS = config
     MODEL_PATH = config["model_path"]
@@ -63,6 +64,7 @@ def apply_model_config(config):
     N_THREADS = config["n_threads"]
     SENTENCE_TRANSFORMER = config["sentence_transformer"]
     TOP_K = config["top_k"]
+    MAX_CONTEXT_CHARS = config["max_context_chars"]
     INDEX_PATH = config["index_path"]
     CHUNKS_PATH = config["chunks_path"]
 
@@ -85,6 +87,7 @@ N_CTX = None
 N_THREADS = None
 SENTENCE_TRANSFORMER = None
 TOP_K = None
+MAX_CONTEXT_CHARS = None
 INDEX_PATH = None
 CHUNKS_PATH = None
 _client = None
@@ -270,7 +273,7 @@ def generate_response_with_context(llm, instruction: str, context: str, question
 
 def generate_response_using_rag(llm, instruction: str, question: str) -> str:
     index, chunks, model = load_rag_assets()
-    context = retrieve(question, index, chunks, model)
+    context = format_retrieved_context(retrieve(question, index, chunks, model))
     response = llm.create_chat_completion(
         messages=[
             {
@@ -315,6 +318,14 @@ def retrieve(query: str, index, chunks, model, k=TOP_K):
 
     retrieved_chunks = [chunks[i] for i in indices[0]]
     return retrieved_chunks
+
+
+def format_retrieved_context(chunks):
+    context = "\n\n".join(str(chunk) for chunk in chunks)
+    if len(context) <= MAX_CONTEXT_CHARS:
+        return context
+    return context[:MAX_CONTEXT_CHARS].rsplit(" ", 1)[0]
+
 
 def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
     if chunk_size <= 0:

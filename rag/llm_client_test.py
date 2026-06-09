@@ -9,6 +9,7 @@ from rag.llm_client import (
     trim_response,
     retrieve,
     chunk_text,
+    format_retrieved_context,
 )
 from rag import llm_client
 
@@ -45,6 +46,13 @@ class LlmClientTest(unittest.TestCase):
 
         self.assertEqual(123, config["max_tokens"])
         self.assertEqual(456, config["n_ctx"])
+
+    def test_format_retrieved_context_trims_to_configured_limit(self):
+        llm_client.apply_model_config(llm_client.load_model_config({"max_context_chars": 20}))
+
+        context = format_retrieved_context(["a" * 15, "b" * 20])
+
+        self.assertLessEqual(len(context), 20)
 
     def test_import_does_not_eagerly_load_torch(self):
         result = subprocess.run(
