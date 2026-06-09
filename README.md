@@ -36,9 +36,8 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 ## Current AWS Coverage
 
 ```
-["cloudformation", "cloudwatch", "dynamodb", "elasticloadbalancing",
-            "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3",
-            "sagemaker", "vpc", "xray" ]
+["cloudformation", "cloudwatch", "elasticloadbalancing",
+   "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3", "vpc"]
 
 ```
 

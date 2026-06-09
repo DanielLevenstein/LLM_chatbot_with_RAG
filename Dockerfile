@@ -15,8 +15,8 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY index ./index
 COPY app.py app.py
-COPY chatbot ./chatbot
-COPY rag ./rag
+COPY chatbot/chatbot.py ./chatbot
+COPY rag/llm_client.py ./rag
 
 EXPOSE 8501
 
