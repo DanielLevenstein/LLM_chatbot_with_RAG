@@ -132,20 +132,18 @@ This project is currently a proof of concept focused on validating:
 - FAISS indexes and chunks must remain aligned — do not modify the pickled chunks file manually.
 - All scripts have to be run from the root directory of the project.
 
-# Creating New Indexes
-
-## Extract Documentation from AWS
+# Extract Documentation 
 
 - Copy `config/features_default.json` to `config/features_current.json`
 - Run `extract.py` to extract documentation
+
+This process will scrape AWS documentation for features listed in features_current.json and save raw file content to data directory.
+
+## Creating Indexes
+
 - Run `ingest.py` to create new indexes
 
-This process will:
-
-1. Scrapes AWS documentation for features listed in features_current.json
-2. Save raw file content to data directory.
-3. Build a FAISS index from download data.
-4. Save the chunks and index in the `index/` folder
+This process will build a FAISS index from download data and save the chunks and index in the `index/` folder.
 
 ### Output
 
