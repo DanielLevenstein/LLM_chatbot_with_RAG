@@ -21,6 +21,9 @@ class ChatBot:
             self.llm = llm_client.get_llm_client()
         return self.llm
 
+    def load_model(self):
+        return self._get_llm()
+
     def ask_question_without_context(self, message: str) -> str:
         print(message)
         return llm_client.generate_response_without_context(self._get_llm(), SYSTEM_PROMPT, message)
