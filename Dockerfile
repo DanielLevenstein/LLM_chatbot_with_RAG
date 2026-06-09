@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir --no-compile --prefer-binary llama-cpp-python
+RUN pip install --no-cache-dir --no-compile --only-binary=:all: \
+    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu \
+    llama-cpp-python==0.3.28
 
 RUN pip install --no-cache-dir --no-compile --index-url https://download.pytorch.org/whl/cpu torch==2.7.1+cpu
 

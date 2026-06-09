@@ -28,11 +28,47 @@ def log_timing(label, start_time, **fields):
 def get_chatbot():
     return ChatBot()
 
+if "model_loaded" not in st.session_state:
+    st.session_state.model_loaded = False
+if "model_status" not in st.session_state:
+    st.session_state.model_status = None
+
+
 # Input field for user queries
-user_input = st.text_input("Enter your question:")
+user_input = st.text_input(
+    "Enter your question:",
+    disabled=not st.session_state.model_loaded,
+    placeholder="Load model first..." if not st.session_state.model_loaded else "",
+)
+
+load_model_column, ask_column  = st.columns([1, 1])
+
+with load_model_column:
+    load_model_clicked = st.button("Load Model")
+
+with ask_column:
+    ask_clicked = st.button("Ask Question", disabled=not st.session_state.model_loaded)
+
+if load_model_clicked:
+    with st.spinner("Loading model..."):
+        try:
+            load_start = time.perf_counter()
+            chatbot = get_chatbot()
+            chatbot.load_model()
+            log_timing("app.load_model", load_start)
+            st.session_state.model_loaded = True
+            st.session_state.model_status = "Model loaded."
+            st.rerun()
+        except Exception as e:
+            st.session_state.model_loaded = False
+            st.session_state.model_status = None
+            st.error(f"Model load failed: {e}")
+
+if st.session_state.model_status:
+    st.success(st.session_state.model_status)
 
 # Button to submit the query
-if st.button("Ask"):
+if ask_clicked:
     if user_input.strip():
         with st.spinner('Processing...'):
             try:
