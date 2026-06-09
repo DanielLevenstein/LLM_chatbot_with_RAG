@@ -24,6 +24,7 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 | v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1 to fix image size |
 | v0.1.1  | 2.97 GB    | Implemented Lazy Loading  (not merged)        |
 | v0.2.0  | 2.97 GB    | Implemented context aware chunking            |
+| v0.2.4  | 2.94 GB    | Parameter Tuning                              | 
 
 
 | Version | Batch Size | Chunk Size | Context Window | Threads | max_tokens | temperature | repeat_penalty | GPU Layers |
@@ -32,6 +33,7 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 | v0.1.1  | 256        | 500        | 1096           | 4       | 256        | 0.3         | 1.1            | 0          |
 | v0.1.2  | 512        | 500        | 2048           | 4       | 512        | 0.0         | 1.2            | 0          |
 | v0.2.0  | 512        | 500        | 2048           | 4       | 512        | 0.0         | 1.2            | 50         |
+| v0.2.4  | 100        | 500        | 2048           | 4       | 250        | 0.0         | 1.2            | 0          |
 
 ## Current AWS Coverage
 

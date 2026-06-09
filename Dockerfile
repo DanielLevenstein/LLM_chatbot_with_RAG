@@ -13,10 +13,12 @@ RUN pip install --prefer-binary llama-cpp-python
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+RUN rm -rf chatbot rag config
 COPY index ./index
 COPY app.py app.py
-COPY chatbot/chatbot.py ./chatbot
-COPY rag/llm_client.py ./rag
+COPY chatbot/ ./chatbot/
+COPY rag/ ./rag/
+COPY config/ ./config/
 
 EXPOSE 8501
 

@@ -5,7 +5,7 @@
     "max_tokens": 250,
     "temperature": 0.0,
     "repeat_penalty": 1.2,
-    "n_gpu_layers": 50,
+    "n_gpu_layers": 0,
     "n_batches": 100,
     "n_ctx": 2048,
     "n_threads": null,
