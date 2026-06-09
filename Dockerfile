@@ -11,10 +11,12 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --prefer-binary llama-cpp-python
+RUN pip install --no-cache-dir --no-compile --prefer-binary llama-cpp-python
+
+RUN pip install --no-cache-dir --no-compile --index-url https://download.pytorch.org/whl/cpu torch==2.7.1+cpu
 
 COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --no-compile -r requirements.txt
 
 COPY config/ ./config/
 COPY docker/warm_hf_cache.py ./docker/warm_hf_cache.py

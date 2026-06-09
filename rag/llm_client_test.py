@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from rag.llm_client import (
     close_llm_client,
+    generate_response_using_rag,
     trim_response,
     retrieve,
     chunk_text,
@@ -53,6 +54,34 @@ class LlmClientTest(unittest.TestCase):
         context = format_retrieved_context(["a" * 15, "b" * 20])
 
         self.assertLessEqual(len(context), 20)
+
+    def test_format_retrieved_context_reserves_room_for_response_tokens(self):
+        llm_client.apply_model_config(
+            llm_client.load_model_config(
+                {"max_context_chars": 3000, "n_ctx": 1000, "max_tokens": 250}
+            )
+        )
+
+        context = format_retrieved_context(["a" * 3000])
+
+        self.assertLessEqual(len(context), 750)
+
+    def test_generate_response_using_rag_sends_trimmed_context_to_llm(self):
+        llm_client.apply_model_config(llm_client.load_model_config({"max_context_chars": 2000}))
+        mock_llm = Mock()
+        mock_llm.create_chat_completion.return_value = {
+            "choices": [{"message": {"content": "mock-response"}}]
+        }
+
+        with patch("rag.llm_client.load_rag_assets", return_value=("index", "chunks", "model")), \
+             patch("rag.llm_client.retrieve", return_value=["x" * 10000]):
+            response = generate_response_using_rag(mock_llm, "instruction", "How to create a S3 bucket?")
+
+        self.assertEqual("mock-response", response)
+        messages = mock_llm.create_chat_completion.call_args.kwargs["messages"]
+        retrieved_context_message = messages[1]["content"]
+        self.assertTrue(retrieved_context_message.startswith("Retrieved context:\n"))
+        self.assertLessEqual(len(retrieved_context_message), len("Retrieved context:\n") + 2000)
 
     def test_import_does_not_eagerly_load_torch(self):
         result = subprocess.run(

@@ -26,7 +26,7 @@ DEFAULT_MODEL_CONFIG = {
     "n_threads": None,
     "sentence_transformer": "sentence-transformers/all-MiniLM-L6-v2",
     "top_k": 2,
-    "max_context_chars": 3000,
+    "max_context_chars": 2000,
     "index_path": "index/index.faiss",
     "chunks_path": "index/chunks.pkl",
 }
@@ -99,12 +99,27 @@ _assets_lock = RLock()
 apply_model_config(MODEL_SETTINGS)
 
 
+def _log_timing(label, start_time, **fields):
+    elapsed = time.perf_counter() - start_time
+    extra_fields = " ".join(f"{key}={value}" for key, value in fields.items())
+    message = f"TIMING {label} seconds={elapsed:.3f}"
+    if extra_fields:
+        message = f"{message} {extra_fields}"
+    print(message, flush=True)
+    return elapsed
+
+
 def get_llm_client():
     global _client
+    start_time = time.perf_counter()
     if _client is None:
         with _client_lock:
             if _client is None:
                 _client = create_llm(MODEL_PATH, MODEL_FILENAME)
+                _log_timing("llm_client.get_llm_client.cold_start", start_time)
+                return _client
+
+    _log_timing("llm_client.get_llm_client.cache_hit", start_time)
     return _client
 
 
@@ -164,24 +179,34 @@ def download_model(model_name_or_path, model_basename, max_retries=3, initial_ba
 
 def load_rag_assets():
     global _index, _chunks, _embed_model
+    start_time = time.perf_counter()
     if _index is None or _chunks is None or _embed_model is None:
         with _assets_lock:
             if _index is None or _chunks is None or _embed_model is None:
                 import faiss
 
                 print("CWD:", os.getcwd())
+                index_start = time.perf_counter()
                 index = faiss.read_index(INDEX_PATH)
+                _log_timing("rag.load_assets.faiss_index", index_start, path=INDEX_PATH)
 
+                chunks_start = time.perf_counter()
                 with open(CHUNKS_PATH, "rb") as f:
                     chunks = pickle.load(f)
+                _log_timing("rag.load_assets.chunks", chunks_start, path=CHUNKS_PATH, count=len(chunks))
 
                 from sentence_transformers import SentenceTransformer
 
+                embed_start = time.perf_counter()
                 embed_model = SentenceTransformer(SENTENCE_TRANSFORMER)
+                _log_timing("rag.load_assets.embedding_model", embed_start, model=SENTENCE_TRANSFORMER)
                 _index = index
                 _chunks = chunks
                 _embed_model = embed_model
+                _log_timing("rag.load_assets.cold_start", start_time)
+                return _index, _chunks, _embed_model
 
+    _log_timing("rag.load_assets.cache_hit", start_time)
     return _index, _chunks, _embed_model
 
 
@@ -190,13 +215,16 @@ def create_llm(model_name_or_path, model_basename):
 
     print(f"Creating model: {model_basename}")
     start_time = datetime.now()
+    timing_start = time.perf_counter()
     # Using hf_hub_download to download a model from the Hugging Face model hub
     # The repo_id parameter specifies the model name or path in the Hugging Face repository
     # The filename parameter specifies the name of the file to download
+    download_start = time.perf_counter()
     model_path = download_model(
         model_name_or_path,
         model_basename,
     )
+    _log_timing("llm.create.download_model", download_start, model=model_basename)
     print(f"Model path: {model_path}")
     print(os.path.exists(model_path))
     print(os.path.getsize(model_path))
@@ -206,6 +234,7 @@ def create_llm(model_name_or_path, model_basename):
     cpu_count = multiprocessing.cpu_count()
     n_threads = N_THREADS or max(4, cpu_count - 1)  # Use most cores, at least 4
 
+    init_start = time.perf_counter()
     llm = Llama(
         model_path=model_path,
         n_threads=n_threads,  # Use detected CPU cores for better performance
@@ -214,10 +243,19 @@ def create_llm(model_name_or_path, model_basename):
         n_ctx=N_CTX,  # Reduced context window for faster processing
         verbose=False,  # Reduce console output
     )
+    _log_timing(
+        "llm.create.initialize",
+        init_start,
+        n_threads=n_threads,
+        n_batch=N_BATCHES,
+        n_ctx=N_CTX,
+        n_gpu_layers=N_GPU_LAYERS,
+    )
     end_time = datetime.now()
     elapsed_time = end_time - start_time
     print(f"Model download to {model_path}\n Download time: {elapsed_time}")
     print(f"LLM initialized with {n_threads} threads")
+    _log_timing("llm.create.total", timing_start, model=model_basename)
     return llm
 
 
@@ -272,8 +310,17 @@ def generate_response_with_context(llm, instruction: str, context: str, question
 
 
 def generate_response_using_rag(llm, instruction: str, question: str) -> str:
+    start_time = time.perf_counter()
     index, chunks, model = load_rag_assets()
-    context = format_retrieved_context(retrieve(question, index, chunks, model))
+    retrieval_start = time.perf_counter()
+    retrieved_chunks = retrieve(question, index, chunks, model)
+    _log_timing("rag.generate.retrieve", retrieval_start, chunks=len(retrieved_chunks))
+
+    context_start = time.perf_counter()
+    context = format_retrieved_context(retrieved_chunks)
+    _log_timing("rag.generate.format_context", context_start, context_chars=len(context))
+
+    generation_start = time.perf_counter()
     response = llm.create_chat_completion(
         messages=[
             {
@@ -294,7 +341,13 @@ def generate_response_using_rag(llm, instruction: str, question: str) -> str:
         top_p=TOP_P,
         repeat_penalty=REPEAT_PENALTY,
     )
-    return trim_response(response["choices"][0]["message"]["content"])
+    _log_timing("rag.generate.llm_completion", generation_start, max_tokens=MAX_TOKENS)
+
+    trim_start = time.perf_counter()
+    answer = trim_response(response["choices"][0]["message"]["content"])
+    _log_timing("rag.generate.trim_response", trim_start, answer_chars=len(answer))
+    _log_timing("rag.generate.total", start_time, question_chars=len(question), answer_chars=len(answer))
+    return answer
 
 
 def trim_response(response_text):
@@ -306,7 +359,9 @@ def trim_response(response_text):
 
 
 def retrieve(query: str, index, chunks, model, k=TOP_K):
+    encode_start = time.perf_counter()
     query_embedding = model.encode(query)
+    _log_timing("rag.retrieve.encode", encode_start, query_chars=len(query))
     try:
         import numpy as np
 
@@ -314,7 +369,9 @@ def retrieve(query: str, index, chunks, model, k=TOP_K):
     except ImportError:
         query_embedding = [query_embedding]
 
+    search_start = time.perf_counter()
     scores, indices = index.search(query_embedding, k)
+    _log_timing("rag.retrieve.search", search_start, k=k)
 
     retrieved_chunks = [chunks[i] for i in indices[0]]
     return retrieved_chunks
@@ -322,9 +379,21 @@ def retrieve(query: str, index, chunks, model, k=TOP_K):
 
 def format_retrieved_context(chunks):
     context = "\n\n".join(str(chunk) for chunk in chunks)
-    if len(context) <= MAX_CONTEXT_CHARS:
+    context_limit = min(MAX_CONTEXT_CHARS, max(500, (N_CTX - MAX_TOKENS - 500) * 3))
+    if len(context) <= context_limit:
+        print(
+            f"TIMING rag.context.limit raw_chars={len(context)} returned_chars={len(context)} "
+            f"context_limit={context_limit}",
+            flush=True,
+        )
         return context
-    return context[:MAX_CONTEXT_CHARS].rsplit(" ", 1)[0]
+    trimmed_context = context[:context_limit].rsplit(" ", 1)[0]
+    print(
+        f"TIMING rag.context.limit raw_chars={len(context)} returned_chars={len(trimmed_context)} "
+        f"context_limit={context_limit}",
+        flush=True,
+    )
+    return trimmed_context
 
 
 def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):

@@ -11,7 +11,7 @@
     "n_threads": null,
     "sentence_transformer": "sentence-transformers/all-MiniLM-L6-v2",
     "top_k": 2,
-    "max_context_chars": 3000,
+    "max_context_chars": 2000,
     "index_path": "index/index.faiss",
     "chunks_path": "index/chunks.pkl"
 }
