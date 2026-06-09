@@ -9,7 +9,6 @@ most relevant documentation fragments and uses them as grounded context for resp
 
 ### System Requirements
 
-#### Releases
 
 AWS Documentation RAG Assistant v0 uses Python version 3.11 and runs on port 8501
 It's currently deployed on render.com but is failing with a 503 error when the Ask button is clicked.
@@ -17,21 +16,16 @@ Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://a
 
 Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
+#### Major Releases
 
-| Version | Image Size | Change                                        |
-|---------|------------|-----------------------------------------------|
-| v0.0.1  | 15.8 GB    | First working build onrender.com 15.8 GB      |
-| v0.1.0  | 2.97 GB    | Downgraded to pytorch 2.7.1 to fix image size |
-| v0.1.1  | 2.97 GB    | Implemented Lazy Loading  (not merged)        |
-| v0.2.0  | 2.97 GB    | Implemented context aware chunking            |
-| v0.2.4  | 3.66 GB    | Parameter Tuning (update image platform)      | 
-| v0.2.5  | 4.09 GB    | Docker cache warm for LLM and embeddings      |
-| v0.2.6  | 4.09 GB    | Safer RAG context cap for 2048-token window   |
-| v0.2.7  | 1.22 GB    | CPU-only torch and production timing logs     |
-| v0.2.8  | 3.97 GB    | Clean tag for corrected CPU-only image        |
-| v0.3.0  | 3.54 GB    | Restored lazy model loading UI;               |
-| v0.3.1  | 1.19 GB    | Split README from RELEASE_LOG Smaller Image   |
-
+| Version | Image Size | Change                                      |
+|---------|------------|---------------------------------------------|
+| v0.0.1  | 15.8 GB    | First working build onrender.com            |
+| v0.1.1  | 2.97 GB    | Implemented Lazy Loading  (not merged)      |
+| v0.2.0  | 2.97 GB    | Implemented context aware chunking          |
+| v0.2.7  | 1.22 GB    | CPU-only torch and production timing logs   |
+| v0.3.0  | 3.54 GB    | Restored lazy model loading UI;             |
+| v0.3.1  | 1.19 GB    | Split README from RELEASE_LOG Smaller Image |
 
 ## Current AWS Coverage
 
