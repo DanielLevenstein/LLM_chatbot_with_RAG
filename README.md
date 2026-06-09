@@ -9,17 +9,33 @@ most relevant documentation fragments and uses them as grounded context for resp
 
 ### System Requirements
 
+AWS Documentation RAG Assistant uses Python version 3.11 and runs on port 8501
+It's currently deployed on render.com but has a very slow response time.
+https://aws-documentation-rag-latest.onrender.com/
 
-AWS Documentation RAG Assistant v0 uses Python version 3.11 and runs on port 8501
-It's currently deployed on render.com but is failing with a 503 error when the Ask button is clicked.
-Docker image: daniellevenstein/aws-documentation-rag:latest is live at https://aws-documentation-rag-latest.onrender.com/
+### Coming Next: AWS Certification Coach
 
-Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
+The next version of this app will abandon the RAG architecture in favor of calculating local embeddings prior to deployment.
+
+This lightweight AI-powered app will help participants study for AWS certification by generating freeform questions from an existing practice test and using the embedded model to evaluate the correctness of the given answer.
+
+Using the Language Model (LLM) to provide personalized feedback on their responses to improve information retention during the process of studying.
+
+Unlike Version 1.0, this architecture eliminates Retrieval-Augmented Generation (RAG), vector databases, and FAISS indexes in favor of a simpler question-and-evaluation workflow.
+
+## Models Used
+
+
+| Models Used                        | Model Size | Version  |
+| ---------------------------------- | ---------- | -------- |
+| tinyllama-1.1b-chat-v1.0.Q2_K.gguf | 483 MB     | v0.1.0   |
+| all-MiniLM-L6-v2                   | 91 MB      | v0.0.1 + |
 
 #### Major Releases
 
+
 | Version | Image Size | Change                                      |
-|---------|------------|---------------------------------------------|
+| ------- | ---------- | ------------------------------------------- |
 | v0.0.1  | 15.8 GB    | First working build onrender.com            |
 | v0.1.1  | 2.97 GB    | Implemented Lazy Loading  (not merged)      |
 | v0.2.0  | 2.97 GB    | Implemented context aware chunking          |
@@ -39,8 +55,6 @@ Model Name: tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 
 - "How do I configure an Application Load Balancer for ECS?"
 - "What permissions are required for Lambda to access S3?"
-- "How do I troubleshoot DynamoDB throttling?"
-- "How do I deploy a SageMaker endpoint?"
 
 ## Running in Docker
 
