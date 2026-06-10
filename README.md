@@ -45,14 +45,14 @@ AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 ## Major Releases
 
 
-| Version | Image Size | Change                                          |
-| ------- | ---------- | ----------------------------------------------- |
-| v0.0.1  | 15.8 GB    | First working build on Render                   |
-| v0.1.1  | 2.97 GB    | Implemented lazy loading (not merged)           |
-| v0.2.0  | 2.97 GB    | Implemented context-aware chunking              |
-| v0.2.7  | 1.22 GB    | CPU-only torch and production timing logs       |
-| v0.3.0  | 3.54 GB    | Restored lazy model loading UI                  |
-| v0.3.1  | 1.19 GB    | Split README from release log for smaller image |
+| Version | Image Size | Change                                              |
+| ------- | ---------- |-----------------------------------------------------|
+| v0.0.1  | 15.8 GB    | First working build on Render                       |
+| v0.1.1  | 2.97 GB    | Implemented lazy loading (not merged)               |
+| v0.2.0  | 2.97 GB    | Implemented context-aware chunking                  |
+| v0.2.7  | 1.22 GB    | CPU-only torch and production timing logs           |
+| v0.3.0  | 3.54 GB    | Restored lazy model loading UI                      |
+| v0.3.1  | 1.19 GB    | Split README from release log and shrunk image size |
 
 ### Optimization Work
 
