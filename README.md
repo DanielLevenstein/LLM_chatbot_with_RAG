@@ -7,14 +7,14 @@ live documentation embeddings and semantic search.
 The latest version of this project has been moved to a new GitHub repo and is currently live on Render.
 The v0 version of this app has been taken down due to memory constraints but it can is still available on docker hub. 
 
-- v0 Dockerhub Deployment: [AWS-Documentation-Rag](https://hub.docker.com/repository/docker/daniellevenstein/aws-documentation-rag/general)
+- v0 Dockerhub Deployment: [daniellevenstein/aws-documentation-rag](https://hub.docker.com/repository/docker/daniellevenstein/aws-documentation-rag/general)
 - v1 GitHub Source:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
-- v1 Render Deployment: [AWS Certification Coach](https://aws-certification-coach-latest.onrender.com/)
+- v1 Render Deployment: [AWS Certification Coach Render Deployment](https://aws-certification-coach-latest.onrender.com/)
 
   
 # Application Screenshot (V0)
 
-![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag.png)
+![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag2.png)
 
 *Figure: The RAG chatbot answers an Amazon S3 question using context retrieved from AWS documentation.*
 
