@@ -10,7 +10,7 @@ The latest version of this project has been moved to a new GitHub repo
 - v1 Deployment: [AWS Certification Coach](https://aws-certification-coach-latest.onrender.com/)
 
   
-# v0: Application Screenshot
+# Application Screenshot (V0)
 
 ![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag.png)
 
