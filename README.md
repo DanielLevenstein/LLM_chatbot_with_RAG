@@ -2,19 +2,19 @@
 
 An AI-powered Retrieval-Augmented Generation (RAG) chatbot built for answering technical AWS questions using
 live documentation embeddings and semantic search.
+
 ## Live Demo
 
 The latest version of this project has been moved to a new GitHub repo and is currently live on Render.
-The v0 version of this app has been taken down due to memory constraints but it can is still available on docker hub. 
+The v0 version of this app has been taken down due to memory constraints but it can is still available on docker hub.
 
 - v0 Dockerhub Deployment: [daniellevenstein/aws-documentation-rag](https://hub.docker.com/repository/docker/daniellevenstein/aws-documentation-rag/general)
 - v1 GitHub Source:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
 - v1 Render Deployment: [AWS Certification Coach Render Deployment](https://aws-certification-coach-latest.onrender.com/)
 
-  
 # Application Screenshot (V0)
 
-![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag2.png)
+![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag3.png)
 
 *Figure: The RAG chatbot answers an Amazon S3 question using context retrieved from AWS documentation.*
 
@@ -62,8 +62,8 @@ working build to approximately 1.19 GB by splitting logs, dependencies, and READ
 ## Current AWS Coverage
 
 ```
-["cloudformation", "cloudwatch", "elasticloadbalancing",
-   "ec2", "ecs", "eks", "iam", "lambda", "rds", "s3", "vpc"]
+"API Gateway","cloudformation", "cloudwatch", "elasticloadbalancing",
+   "ec2", "ecs", "iam", "lambda", "rds", "s3", "vpc"]
 
 ```
 

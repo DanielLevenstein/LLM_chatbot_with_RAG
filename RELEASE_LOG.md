@@ -14,6 +14,10 @@
 | v0.2.8  | 3.97 GB    | Clean tag for corrected CPU-only image        |
 | v0.3.0  | 3.54 GB    | Restored lazy model loading UI;               |
 | v0.3.1  | 1.19 GB    | Split README from RELEASE_LOG Smaller Image   |
+| v0.3.2  | 1.19 GB    | Title of app and README doc                   |
+
+Use the following docker command for official release.
+```docker buildx build --platform linux/amd64 -t daniellevenstein/aws-documentation-rag:tag --push .```
 
 ## Release Stats
 
@@ -29,6 +33,7 @@
 | v0.2.7  | 100        | 500        | 2048           | auto    | 250        | 0.0         | 1.2            | 0          |
 | v0.2.8  | 100        | 500        | 2048           | auto    | 250        | 0.0         | 1.2            | 0          |
 | v0.3.0  | 100        | 500        | 2048           | auto    | 250        | 0.0         | 1.2            | 0          |
+| v0.3.2  | 150        | 500        | 2048           | auto    | 250        | 0.0         | 1.2            | 25         |
 
 
 # Release Notes

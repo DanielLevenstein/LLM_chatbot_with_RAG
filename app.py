@@ -10,8 +10,8 @@ import streamlit as st
 from chatbot.chatbot import ChatBot
 
 
-st.title("Streamlit Chatbot")
-st.write("Welcome to the RAG-based chatbot! You can ask questions based on the context of provided documents.")
+st.title("🎼 AWS Document RAG 🎺")
+st.write("Welcome to the RAG. Local Document Search Solution.")
 
 
 def log_timing(label, start_time, **fields):
