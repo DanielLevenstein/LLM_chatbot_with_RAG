@@ -5,8 +5,12 @@ live documentation embeddings and semantic search.
 
 ## Live Demo
 
-- v0: https://aws-documentation-rag-latest.onrender.com/
-- v1: https://aws-certification-coach-latest.onrender.com/
+- v0 Deployment: [AWS Documentation Rag](https://aws-documentation-rag-latest.onrender.com/)
+- v1 Deployment: [AWS Certification Coach](https://aws-certification-coach-latest.onrender.com/)
+
+v1 of this project has been moved to a new GitHub repo
+
+- v1: GitHub:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
 
 ## Why I Built This
 
@@ -28,7 +32,7 @@ AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
 
 | Models Used                        | Model Size | Version  |
-|------------------------------------|------------|----------|
+| ---------------------------------- | ---------- | -------- |
 | tinyllama-1.1b-chat-v1.0.Q2_K.gguf | 483 MB     | v0.1.0   |
 | all-MiniLM-L6-v2                   | 91 MB      | v0.0.1 + |
 
@@ -36,7 +40,7 @@ AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
 
 | Version | Image Size | Change                                          |
-|---------|------------|-------------------------------------------------|
+| ------- | ---------- | ----------------------------------------------- |
 | v0.0.1  | 15.8 GB    | First working build on Render                   |
 | v0.1.1  | 2.97 GB    | Implemented lazy loading (not merged)           |
 | v0.2.0  | 2.97 GB    | Implemented context-aware chunking              |
@@ -80,9 +84,10 @@ retention.
 Unlike this version, this architecture will avoid Retrieval-Augmented Generation (RAG), vector databases, and FAISS
 indexes in favor of a simpler question-and-evaluation workflow.
 
-Next version of this app is currently live at render.com.
-To see code for latest product go here:
-https://github.com/DanielLevenstein/AWS-Certification-Coach
+The next version of this app is currently live at render.com.
+https://aws-certification-coach-latest.onrender.com/
+
+- v1: GitHub:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
 
 ## Running in Docker
 
