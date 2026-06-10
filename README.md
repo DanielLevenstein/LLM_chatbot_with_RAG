@@ -5,12 +5,10 @@ live documentation embeddings and semantic search.
 
 ## Live Demo
 
-- v0 Deployment: [AWS Documentation Rag](https://aws-documentation-rag-latest.onrender.com/)
+The latest version of this project has been moved to a new GitHub repo
+
+- v1 GitHub:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
 - v1 Deployment: [AWS Certification Coach](https://aws-certification-coach-latest.onrender.com/)
-
-v1 of this project has been moved to a new GitHub repo
-
-- v1: GitHub:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
 
 ## Why I Built This
 
@@ -86,8 +84,6 @@ indexes in favor of a simpler question-and-evaluation workflow.
 
 The next version of this app is currently live at render.com.
 https://aws-certification-coach-latest.onrender.com/
-
-- v1: GitHub:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
 
 ## Running in Docker
 
