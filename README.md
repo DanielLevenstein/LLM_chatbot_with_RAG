@@ -4,10 +4,12 @@ An AI-powered Retrieval-Augmented Generation (RAG) chatbot built for answering t
 live documentation embeddings and semantic search.
 ## Live Demo
 
-The latest version of this project has been moved to a new GitHub repo
+The latest version of this project has been moved to a new GitHub repo and is currently live on Render
+The v0 version of this app has been taken down due to memory constraints but it can is still available on docker hub. 
 
-- v1 GitHub:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
-- v1 Deployment: [AWS Certification Coach](https://aws-certification-coach-latest.onrender.com/)
+- v0 Dockerhub Deployment: [AWS-Documentation-Rag](https://hub.docker.com/repository/docker/daniellevenstein/aws-documentation-rag/general)
+- v1 GitHub Source:  [DanielLevenstein/AWS-Certification-Coach](https://github.com/DanielLevenstein/AWS-Certification-Coach)
+- v1 Render Deployment: [AWS Certification Coach](https://aws-certification-coach-latest.onrender.com/)
 
   
 # Application Screenshot (V0)
