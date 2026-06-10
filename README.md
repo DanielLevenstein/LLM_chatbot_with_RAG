@@ -5,8 +5,8 @@ live documentation embeddings and semantic search.
 
 ## Live Demo
 
-v0: https://aws-documentation-rag-latest.onrender.com/
-v1: https://aws-certification-coach-latest.onrender.com/
+- v0: https://aws-documentation-rag-latest.onrender.com/
+- v1: https://aws-certification-coach-latest.onrender.com/
 
 ## Why I Built This
 
