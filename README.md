@@ -4,7 +4,7 @@ An AI-powered Retrieval-Augmented Generation (RAG) chatbot built for answering t
 live documentation embeddings and semantic search.
 ## Live Demo
 
-The latest version of this project has been moved to a new GitHub repo and is currently live on Render
+The latest version of this project has been moved to a new GitHub repo and is currently live on Render.
 The v0 version of this app has been taken down due to memory constraints but it can is still available on docker hub. 
 
 - v0 Dockerhub Deployment: [AWS-Documentation-Rag](https://hub.docker.com/repository/docker/daniellevenstein/aws-documentation-rag/general)
