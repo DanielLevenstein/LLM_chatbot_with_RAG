@@ -5,11 +5,8 @@ live documentation embeddings and semantic search.
 
 ## Live Demo
 
-Deployed on Render:
-
-https://aws-documentation-rag-latest.onrender.com/
-
-Note: the free Render deployment may have slow cold starts and response latency.
+v0: https://aws-documentation-rag-latest.onrender.com/
+v1: https://aws-certification-coach-latest.onrender.com/
 
 ## Why I Built This
 
@@ -82,6 +79,10 @@ retention.
 
 Unlike this version, this architecture will avoid Retrieval-Augmented Generation (RAG), vector databases, and FAISS
 indexes in favor of a simpler question-and-evaluation workflow.
+
+Next version of this app is currently live at render.com.
+To see code for latest product go here:
+https://github.com/DanielLevenstein/AWS-Certification-Coach
 
 ## Running in Docker
 
