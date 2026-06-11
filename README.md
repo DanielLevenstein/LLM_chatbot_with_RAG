@@ -18,6 +18,18 @@ The v0 version of this app has been taken down due to memory constraints but it 
 
 *Figure: The RAG chatbot answers an Amazon S3 question using context retrieved from AWS documentation.*
 
+## Running Locally
+
+For ease of testing, indexes have already been generated for this app.
+To run, install Python and then run the following commands locally.
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Then open `http://localhost:8501` on the host machine.
+
 ## Why I Built This
 
 I built this project to explore how Retrieval-Augmented Generation can reduce hallucinations in technical Q&A systems
@@ -46,7 +58,7 @@ AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
 
 | Version | Image Size | Change                                              |
-| ------- | ---------- |-----------------------------------------------------|
+| ------- | ---------- | --------------------------------------------------- |
 | v0.0.1  | 15.8 GB    | First working build on Render                       |
 | v0.1.1  | 2.97 GB    | Implemented lazy loading (not merged)               |
 | v0.2.0  | 2.97 GB    | Implemented context-aware chunking                  |
