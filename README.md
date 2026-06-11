@@ -17,6 +17,9 @@ The v0 version of this app has been taken down due to memory constraints but it 
 ![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag3.png)
 
 *Figure: The RAG chatbot answers an Amazon S3 question using context retrieved from AWS documentation.*
+## System Requirements
+
+AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
 ## Running Locally
 
@@ -24,11 +27,23 @@ For ease of testing, indexes have already been generated for this app.
 To run, install Python and then run the following commands locally.
 
 ```bash
+git clone https://github.com/DanielLevenstein/aws-documentation-rag.git
+cd aws-documentation-rag
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
 Then open `http://localhost:8501` on the host machine.
+
+## Running in Docker
+
+Pull docker image:
+
+```bash
+docker pull daniellevenstein/aws-documentation-rag:latest
+docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:latest
+```
+App will run on localhost:8501
 
 ## Why I Built This
 
@@ -42,9 +57,6 @@ The system crawls selected AWS documentation pages, processes and chunks the con
 and stores them in a FAISS index for fast retrieval. When a user submits a question, the chatbot retrieves the
 most relevant documentation fragments and uses them as grounded context for response generation.
 
-### System Requirements
-
-AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
 ## Models Used
 
@@ -104,32 +116,6 @@ indexes in favor of a simpler question-and-evaluation workflow.
 
 The next version of this app is currently live at render.com.
 https://aws-certification-coach-latest.onrender.com/
-
-## Running in Docker
-
-Latest prebuilt image:
-
-```bash
-docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:latest
-```
-
-## Running Locally
-
-This project includes a local Streamlit app for testing. For ease of testing, the `extract.py` and `ingest.py` scripts
-have already been run, and the generated chunks and indexes have been committed to source control.
-
-To run the Streamlit app, install the dependencies and start the app locally:
-
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-Then open `http://localhost:8501` on the host machine.
-
-Note: inside a Docker container, `localhost` means that same container. If another container needs to reach this app,
-put both containers on the same Docker network and use the app container name, or use `host.docker.internal:8501` to
-reach a service running on the host.
 
 ## Architecture Overview
 
