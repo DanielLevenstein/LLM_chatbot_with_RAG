@@ -21,30 +21,6 @@ The v0 version of this app has been taken down due to memory constraints but it 
 
 AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
-## Running Locally
-
-For ease of testing, indexes have already been generated for this app.
-To run, install Python and then run the following commands locally.
-
-```bash
-git clone https://github.com/DanielLevenstein/aws-documentation-rag.git
-cd aws-documentation-rag
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-Then open `http://localhost:8501` on the host machine.
-
-## Running in Docker
-
-Pull docker image:
-
-```bash
-docker pull daniellevenstein/aws-documentation-rag:latest
-docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:latest
-```
-App will run on localhost:8501
-
 ## Why I Built This
 
 I built this project to explore how Retrieval-Augmented Generation can reduce hallucinations in technical Q&A systems
@@ -170,6 +146,31 @@ This project is currently a proof of concept focused on validating:
 - Make sure the embedding model used during ingestion matches the model used for querying (default: `all-MiniLM-L6-v2`).
 - FAISS indexes and chunks must remain aligned. Do not modify the pickled chunks file manually.
 - All scripts have to be run from the root directory of the project.
+
+
+# Running Locally
+
+For ease of testing, indexes have already been generated for this app.
+To run, install Python and then run the following commands locally.
+
+```bash
+git clone https://github.com/DanielLevenstein/aws-documentation-rag.git
+cd aws-documentation-rag
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Then open `http://localhost:8501` on the host machine.
+
+## Running in Docker
+
+Pull docker image:
+
+```bash
+docker pull daniellevenstein/aws-documentation-rag:latest
+docker run -p 8501:8501 --rm daniellevenstein/aws-documentation-rag:latest
+```
+App will run on localhost:8501
 
 ## Extract Documentation
 
