@@ -17,9 +17,6 @@ The v0 version of this app has been taken down due to memory constraints but it 
 ![AWS Documentation RAG chatbot answering an S3 question](charts/aws-documentation-rag3.png)
 
 *Figure: The RAG chatbot answers an Amazon S3 question using context retrieved from AWS documentation.*
-## System Requirements
-
-AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
 
 ## Why I Built This
 
@@ -148,8 +145,12 @@ This project is currently a proof of concept focused on validating:
 - All scripts have to be run from the root directory of the project.
 
 
-# Running Locally
+# System Requirements
 
+AWS Documentation RAG Assistant uses Python 3.11 and runs on port 8501.
+
+
+## Running Locally
 For ease of testing, indexes have already been generated for this app.
 To run, install Python and then run the following commands locally.
 
