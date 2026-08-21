@@ -2,7 +2,7 @@ import os
 import pickle
 import faiss
 
-from rag.llm_client import chunk_text, SENTENCE_TRANSFORMER
+from rag.llm_client import CHUNK_OVERLAP, CHUNK_SIZE, chunk_text, SENTENCE_TRANSFORMER
 
 DATA_DIR = "data"
 OUTPUT_INDEX_PATH = "index/index.faiss"
@@ -14,12 +14,25 @@ def read_txt(path: str) -> str:
         return f.read()
 
 
-def context_aware_chunk_text(raw_text: str) -> list[str]:
+def context_aware_chunk_text(
+    raw_text: str,
+    max_chunk_size: int = CHUNK_SIZE,
+    overlap: int = CHUNK_OVERLAP,
+) -> list[str]:
     """
     Splits raw text into context-aware chunks by preserving paragraphs or sections.
     Two consecutive newline characters (\n\n) signify a new paragraph or section.
     """
-    return [chunk.strip() for chunk in raw_text.split("\n\n") if chunk.strip()]
+    chunks: list[str] = []
+    for section in raw_text.split("\n\n"):
+        section = section.strip()
+        if not section:
+            continue
+        if len(section) <= max_chunk_size:
+            chunks.append(section)
+            continue
+        chunks.extend(chunk_text(section, chunk_size=max_chunk_size, overlap=overlap))
+    return chunks
 
 
 def ingest_folder(data_dir: str):
