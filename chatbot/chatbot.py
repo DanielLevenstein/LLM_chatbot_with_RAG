@@ -22,6 +22,7 @@ class ChatBot:
         return self.llm
 
     def load_model(self):
+        llm_client.load_rag_assets()
         return self._get_llm()
 
     def ask_question_without_context(self, message: str) -> str:
@@ -37,7 +38,8 @@ class ChatBot:
 
     def close_model(self):
         if self.llm is not None:
-            self.llm.close()
+            llm_client.close_all_resources()
+            self.llm = None
 
 if __name__ == '__main__':
     chatbot = ChatBot()

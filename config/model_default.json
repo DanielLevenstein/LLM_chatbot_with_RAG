@@ -2,7 +2,7 @@
     "model_path": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
     "model_filename": "tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
     "top_p": 0.95,
-    "max_tokens": 250,
+    "max_tokens": 400,
     "temperature": 0.0,
     "repeat_penalty": 1.2,
     "n_gpu_layers": 25,

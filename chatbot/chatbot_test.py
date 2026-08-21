@@ -87,5 +87,27 @@ class ChatBotTest(unittest.TestCase):
             mock_get_llm.assert_called_once()
             mock_generate.assert_called_once_with(mock_llm, SYSTEM_PROMPT, 'hello')
 
+    def test_load_model_warms_rag_assets(self):
+        with patch('chatbot.chatbot.llm_client.load_rag_assets') as mock_load_assets, \
+             patch('chatbot.chatbot.llm_client.get_llm_client') as mock_get_llm:
+            mock_llm = Mock()
+            mock_get_llm.return_value = mock_llm
+
+            result = ChatBot().load_model()
+
+        self.assertIs(result, mock_llm)
+        mock_load_assets.assert_called_once()
+        mock_get_llm.assert_called_once()
+
+    def test_close_model_releases_shared_resources(self):
+        bot = ChatBot()
+        bot.llm = Mock()
+
+        with patch("chatbot.chatbot.llm_client.close_all_resources") as mock_close_all:
+            bot.close_model()
+
+        mock_close_all.assert_called_once()
+        self.assertIsNone(bot.llm)
+
 if __name__ == '__main__':
     unittest.main()

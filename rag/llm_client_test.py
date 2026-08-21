@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from rag.llm_client import (
     close_llm_client,
+    close_rag_assets,
     generate_response_using_rag,
     trim_response,
     retrieve,
@@ -31,6 +32,19 @@ class LlmClientTest(unittest.TestCase):
 
         mock_llm.close.assert_called_once()
         self.assertIsNone(llm_client._client)
+
+    def test_close_rag_assets_releases_cached_assets(self):
+        mock_embed_model = Mock()
+        llm_client._index = Mock()
+        llm_client._chunks = ["chunk"]
+        llm_client._embed_model = mock_embed_model
+
+        close_rag_assets()
+
+        mock_embed_model.close.assert_called_once()
+        self.assertIsNone(llm_client._index)
+        self.assertIsNone(llm_client._chunks)
+        self.assertIsNone(llm_client._embed_model)
 
     def test_get_llm_client_only_creates_one_client_for_concurrent_callers(self):
         mock_llm = Mock()

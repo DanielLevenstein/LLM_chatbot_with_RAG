@@ -143,10 +143,13 @@ def close_llm_client():
 def close_rag_assets():
     global _index, _chunks, _embed_model
     with _assets_lock:
+        embed_model = _embed_model
         _index = None
         _chunks = None
         _embed_model = None
 
+    if embed_model is not None:
+        _close_resource(embed_model)
     gc.collect()
 
 
@@ -341,7 +344,8 @@ def generate_response_using_rag(llm, instruction: str, question: str) -> str:
         top_p=TOP_P,
         repeat_penalty=REPEAT_PENALTY,
     )
-    _log_timing("rag.generate.llm_completion", generation_start, max_tokens=MAX_TOKENS)
+    finish_reason = response.get("choices", [{}])[0].get("finish_reason", "unknown")
+    _log_timing("rag.generate.llm_completion", generation_start, max_tokens=MAX_TOKENS, finish_reason=finish_reason)
 
     trim_start = time.perf_counter()
     answer = trim_response(response["choices"][0]["message"]["content"])
